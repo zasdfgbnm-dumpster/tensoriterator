@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 template <typename T>
 T *arange(int64_t size) {
   T *buf = new T[size];
@@ -14,4 +16,17 @@ T *arange(int64_t size) {
   delete [] buf;
   // who cares about cudaFree :P LOL
   return ret;
+}
+
+template <typename T>
+void print(T *data, int64_t size) {
+  T *buf = new T[size];
+  int64_t size_ = size * sizeof(T);
+  cudaDeviceSynchronize();
+  cudaMemcpy(buf, data, size_, cudaMemcpyDeviceToHost);
+  for (int64_t i = 0; i < size; i++) {
+    std::cout << buf[i] << ", ";
+  }
+  std::cout << std::endl;
+  delete [] buf;
 }
