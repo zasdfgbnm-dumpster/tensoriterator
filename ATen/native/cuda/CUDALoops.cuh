@@ -90,16 +90,15 @@ static inline void launch_vectorized_kernel(int64_t N, const func_t& f, array_t 
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   using traits = function_traits<func_t>;
   int64_t grid = (N + block_work_size - 1) / block_work_size;
-  auto stream = at::cuda::getCurrentCUDAStream();
   int vec_size = memory::can_vectorize_up_to<func_t>(data);
 
   switch (vec_size) {
   case 4:
-    vectorized_elementwise_kernel<4, func_t, array_t><<<grid, num_threads, 0, stream>>>(N, f, data);
+    vectorized_elementwise_kernel<4, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     break;
   case 2:
-    vectorized_elementwise_kernel<2, func_t, array_t><<<grid, num_threads, 0, stream>>>(N, f, data);
+    vectorized_elementwise_kernel<2, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     break;
   case 1: {
@@ -107,7 +106,7 @@ static inline void launch_vectorized_kernel(int64_t N, const func_t& f, array_t 
     auto output_calc = TrivialOffsetCalculator<1>();
     auto loader = memory::LoadWithoutCast();
     auto storer = memory::StoreWithoutCast();
-    unrolled_elementwise_kernel<func_t, array_t><<<grid, num_threads, 0, stream>>>(N, f, data, input_calc, output_calc, loader, storer);
+    unrolled_elementwise_kernel<func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, input_calc, output_calc, loader, storer);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     break;
   }
@@ -122,8 +121,7 @@ static inline void launch_unrolled_kernel(int64_t N, const func_t& f, array_t da
 {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = (N + block_work_size - 1) / block_work_size;
-  auto stream = at::cuda::getCurrentCUDAStream();
-  unrolled_elementwise_kernel<func_t, array_t><<<grid, num_threads, 0, stream>>>(N, f, data, ic, oc, l, s);
+  unrolled_elementwise_kernel<func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, ic, oc, l, s);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 

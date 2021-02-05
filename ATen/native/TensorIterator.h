@@ -10,7 +10,7 @@ extern std::vector<int64_t> shape;
 extern std::vector<at::ScalarType> dtypes;
 extern std::vector<char *> data_ptrs;
 extern bool is_contiguous;
-extern int64_t noutput;
+extern int64_t noutputs;
 
 namespace at {
 
@@ -53,7 +53,15 @@ bool is_contiguous() {
 }
 
 at::ScalarType input_dtype(int64_t i) {
-  return ::dtypes[i + ::noutput];
+  return ::dtypes[i + ::noutputs];
+}
+
+int64_t noutputs() {
+  return ::noutputs;
+}
+
+int64_t element_size(int64_t i) {
+  return c10::elementSize(::dtypes[i]);
 }
 
 } iter;

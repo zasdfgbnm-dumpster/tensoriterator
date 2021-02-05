@@ -50,6 +50,7 @@ struct needs_dynamic_casting<func_t, 0> {
     } else {
       return iter.dtype(0) != c10::CppTypeToScalarType<cpp_type>::value;
     };
+    return false;
   }
 };
 
