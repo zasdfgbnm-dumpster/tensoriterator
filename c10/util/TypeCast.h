@@ -4,6 +4,8 @@
 
 #define ERROR_UNSUPPORTED_CAST assert(false);
 
+namespace c10 {
+
 // Fetch a value with dynamic type src_type from ptr, and cast it to static type dest_t.
 // For now, simplified version that does not handle complex and special casting to uint8
 #define FETCH_AND_CAST_CASE(type, scalartype) case ScalarType::scalartype: return static_cast<dest_t>(*(const type *)ptr);
@@ -26,4 +28,6 @@ __device__ inline void cast_and_store(const ScalarType dest_type, void *ptr, src
     default:;
   }
   ERROR_UNSUPPORTED_CAST
+}
+
 }
