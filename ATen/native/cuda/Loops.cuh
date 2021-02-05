@@ -178,8 +178,7 @@ template <int num_outputs, typename func_t, typename array_t, typename inp_calc_
 static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const func_t& f, array_t data, inp_calc_t ic, out_calc_t oc) {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = (N + block_work_size - 1) / block_work_size;
-  auto stream = at::cuda::getCurrentCUDAStream();
-  unrolled_elementwise_kernel_for_multi_outputs<num_outputs, func_t, array_t><<<grid, num_threads, 0, stream>>>(N, f, data, ic, oc);
+  unrolled_elementwise_kernel_for_multi_outputs<num_outputs, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, ic, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 

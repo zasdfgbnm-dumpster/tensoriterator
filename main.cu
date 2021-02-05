@@ -1,7 +1,7 @@
 #include <ATen/native/cuda/Loops.cuh>
 
 std::vector<int64_t> shape = {};
-std::vector<std::vector<int64_t>> strides = {}
+std::vector<std::vector<int64_t>> strides = {};
 std::vector<at::ScalarType> dtypes = {};
 std::vector<char *> data_ptr = {};
 bool is_contiguous = true;

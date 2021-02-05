@@ -65,8 +65,21 @@ int64_t element_size(int64_t i) const {
   return c10::elementSize(::dtypes[i]);
 }
 
-std::vector<std::int64_t> strides(int64_t i) {
+std::vector<std::int64_t> strides(int64_t i) const {
   return ::strides[i];
+}
+
+bool is_cpu_scalar(int64_t i) const {
+  return false;
+}
+
+template<typename T>
+T scalar_value(int64_t i) {
+  throw "wrong!";
+}
+
+void remove_operand(int64_t i) {
+  throw "wrong!";
 }
 
 } iter;
