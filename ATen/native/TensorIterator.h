@@ -7,6 +7,7 @@
 #include <c10/core/ScalarType.h>
 
 extern std::vector<int64_t> shape;
+extern std::vector<std::vector<int64_t>> strides;
 extern std::vector<at::ScalarType> dtypes;
 extern std::vector<char *> data_ptrs;
 extern bool is_contiguous;
@@ -62,6 +63,10 @@ int64_t noutputs() const {
 
 int64_t element_size(int64_t i) const {
   return c10::elementSize(::dtypes[i]);
+}
+
+std::vector<std::int64_t> strides(int64_t i) {
+  return ::strides[i];
 }
 
 } iter;
