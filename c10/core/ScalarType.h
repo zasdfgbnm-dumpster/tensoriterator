@@ -48,3 +48,5 @@ enum class ScalarType : int8_t {
 namespace c10 {
 using namespace at;
 }
+
+using namespace at;
