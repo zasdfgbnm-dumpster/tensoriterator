@@ -11,6 +11,7 @@ constexpr int num_threads = NUM_THREADS;
 constexpr int thread_work_size = THREAD_WORK_SIZE;
 constexpr int block_work_size = BLOCK_WORK_SIZE;
 
+#include <c10/util/C++17.h>
 #include <ATen/detail/FunctionTraits.h>
 #include <ATen/native/TensorIterator.h>
 #include <ATen/native/TensorIteratorDynamicCasting.h>
@@ -65,7 +66,7 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
   #pragma unroll
   for (int i = 0; i < thread_work_size; i++) {
     if (policy.check_inbounds(i)) {
-      results[i] = std::apply(f, args[i]);
+      results[i] = c10::guts::apply(f, args[i]);
     }
   }
 

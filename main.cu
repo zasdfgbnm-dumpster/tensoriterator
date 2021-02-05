@@ -13,7 +13,7 @@ using namespace at::native;
 
 int main() {
   TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel(iter, [] GPU_LAMBDA (float a, float b) {
-    return a + b;
+  gpu_kernel_multiple_outputs(iter, [] GPU_LAMBDA (float a, float b) {
+    return thrust::tuple<float, float>(a + b, a - b);
   });
 }
