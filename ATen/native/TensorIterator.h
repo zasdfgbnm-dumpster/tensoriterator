@@ -8,6 +8,7 @@
 
 extern std::vector<int64_t> shape;
 extern std::vector<at::ScalarType> dtypes;
+extern std::vector<char *> data_ptrs;
 
 namespace at {
 
@@ -35,6 +36,10 @@ bool can_use_32bit_indexing() {
 
 std::array<TensorIteratorBase, 1> with_32bit_indexing() {
   return {*this};
+}
+
+char *data_ptr(int64_t i) {
+  return data_ptrs[i];
 }
 
 } iter;
