@@ -1,4 +1,5 @@
 #include <ATen/native/cuda/Loops.cuh>
+#include <helper.cuh>
 
 std::vector<int64_t> shape = {};
 std::vector<std::vector<int64_t>> strides = {};
