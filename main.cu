@@ -11,6 +11,7 @@ using namespace at;
 using namespace at::native;
 
 int main() {
+  TensorIteratorBase iter;
   gpu_kernel(iter, [] GPU_LAMBDA (float a, float b) {
     return a + b;
   });

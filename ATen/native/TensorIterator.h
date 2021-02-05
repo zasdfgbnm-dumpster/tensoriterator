@@ -82,6 +82,6 @@ void remove_operand(int64_t i) {
   throw "wrong!";
 }
 
-} iter;
+};
 
 }
