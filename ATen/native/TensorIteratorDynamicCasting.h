@@ -48,9 +48,7 @@ struct needs_dynamic_casting<func_t, 0> {
     if constexpr (std::is_void<cpp_type>::value) {
       return false;
     } else {
-      // decltype(_) is used to delay computation
-      using delayed_type = cpp_type;
-      return iter.dtype(0) != c10::CppTypeToScalarType<delayed_type>::value;
+      return iter.dtype(0) != c10::CppTypeToScalarType<cpp_type>::value;
     };
   }
 };
