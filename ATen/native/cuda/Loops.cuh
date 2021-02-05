@@ -92,12 +92,6 @@ namespace at { namespace native {
 template <typename func_t>
 void gpu_kernel(TensorIteratorBase& iter, const func_t& f) {
 
-  for (int arg = 0; arg < iter.ntensors(); arg++) {
-    TORCH_INTERNAL_ASSERT(
-      iter.device(arg).is_cuda(),
-      "argument ", arg, ": expected a CUDA device but found ", iter.device(arg));
-  }
-
   if (iter.numel() == 0) {
     return;
   }
@@ -156,12 +150,6 @@ void gpu_kernel_with_scalars(TensorIteratorBase& iter, const func_t& f) {
   if (iter.is_cpu_scalar(1)) {
     AUnaryFunctor<func_t> af(f, iter.scalar_value<arg1_t>(1));
     iter.remove_operand(1);
-    // TODO: When all kernels that use gpu_kernel_with_scalars are
-    // ported to structured, this device guard can be deleted.  This
-    // works around incorrect device guard generation for pre-structured
-    // kernels device guards, but structured kernels do it right and
-    // we can assume the device is already set correctly
-    const OptionalDeviceGuard device_guard(device_of(iter.tensor(1)));
     gpu_kernel(iter, af);
   } else if (iter.is_cpu_scalar(2)) {
     BUnaryFunctor<func_t> bf(f, iter.scalar_value<arg2_t>(2));
@@ -229,10 +217,6 @@ void gpu_kernel_multiple_outputs_impl(TensorIteratorBase& iter, const func_t& f)
 template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
   ASSERT_HOST_DEVICE_LAMBDA(func_t);
-
-  for (int arg = 0; arg < iter.ntensors(); arg++) {
-    TORCH_INTERNAL_ASSERT(iter.device(arg).is_cuda());
-  }
 
   if (iter.numel() == 0) {
     return;

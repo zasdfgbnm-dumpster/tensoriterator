@@ -9,6 +9,7 @@
 extern std::vector<int64_t> shape;
 extern std::vector<at::ScalarType> dtypes;
 extern std::vector<char *> data_ptrs;
+extern bool is_contiguous;
 
 namespace at {
 
@@ -39,7 +40,11 @@ std::array<TensorIteratorBase, 1> with_32bit_indexing() {
 }
 
 char *data_ptr(int64_t i) {
-  return data_ptrs[i];
+  return ::data_ptrs[i];
+}
+
+bool is_contiguous() {
+  return ::is_contiguous;
 }
 
 } iter;
