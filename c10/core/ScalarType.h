@@ -43,6 +43,19 @@ enum class ScalarType : int8_t {
   NumOptions
 };
 
+static inline size_t elementSize(ScalarType t) {
+#define CASE_ELEMENTSIZE_CASE(ctype, name) \
+  case ScalarType::name:                   \
+    return sizeof(ctype);
+
+  switch (t) {
+    AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(CASE_ELEMENTSIZE_CASE)
+    default:
+      AT_ERROR("Unknown ScalarType");
+  }
+#undef CASE_ELEMENTSIZE_CASE
+}
+
 }
 
 namespace c10 {

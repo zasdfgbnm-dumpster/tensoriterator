@@ -49,3 +49,5 @@ constexpr uint32_t CUDA_THREADS_PER_BLOCK_FALLBACK = 256;
                     static_cast<unsigned>(__LINE__)),                          \
            0);                                                                 \
   }
+
+#define AT_ERROR(...)
