@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+namespace at {
+
 // NB: Order matters for this macro; it is relied upon in
 // _promoteTypesLookup and the serialization format.
 // Note, some types have ctype as void because we don't support them in codegen
@@ -40,3 +42,5 @@ enum class ScalarType : int8_t {
       Undefined,
   NumOptions
 };
+
+}

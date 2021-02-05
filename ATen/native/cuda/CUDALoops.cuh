@@ -30,15 +30,11 @@
 
 #include <type_traits>
 #include <tuple>
-
-#include <ATen/ATen.h>
-#include <ATen/cuda/CUDAContext.h>
-#include <ATen/core/Array.h>
-#include <ATen/detail/FunctionTraits.h>
 #include <c10/macros/Macros.h>
 #include <c10/core/ScalarType.h>
 #include <c10/util/TypeCast.h>
-#include <c10/util/C++17.h>
+#include <ATen/core/Array.h>
+#include <ATen/detail/FunctionTraits.h>
 
 // Marks a lambda as executable on both the host and device. The __host__
 // attribute is important so that we can access static type information from

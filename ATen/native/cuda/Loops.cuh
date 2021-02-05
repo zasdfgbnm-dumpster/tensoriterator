@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <c10/macros/Macros.h>
+
 #define NUM_THREADS (C10_WARP_SIZE * 2)
 #define THREAD_WORK_SIZE 4
 #define BLOCK_WORK_SIZE (THREAD_WORK_SIZE * num_threads)
