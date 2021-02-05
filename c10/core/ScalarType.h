@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace at {
+namespace c10 {
 
 // NB: Order matters for this macro; it is relied upon in
 // _promoteTypesLookup and the serialization format.
@@ -13,18 +13,9 @@ namespace at {
   _(int16_t, Short)      /* 2 */                                               \
   _(int, Int)            /* 3 */                                               \
   _(int64_t, Long)       /* 4 */                                               \
-  _(void, Half)          /* 5 */                                               \
   _(float, Float)        /* 6 */                                               \
   _(double, Double)      /* 7 */                                               \
-  _(void, ComplexHalf)   /* 8 */                                               \
-  _(void, ComplexFloat)  /* 9 */                                               \
-  _(void, ComplexDouble) /* 10 */                                              \
-  _(bool, Bool)          /* 11 */                                              \
-  _(void, QInt8)         /* 12 */                                              \
-  _(void, QUInt8)        /* 13 */                                              \
-  _(void, QInt32)        /* 14 */                                              \
-  _(void, BFloat16)      /* 15 */                                              \
-  _(void, QUInt4x2)      /* 16 */
+  _(bool, Bool)
 
 #define AT_FORALL_SCALAR_TYPES(_)                                              \
   _(uint8_t, Byte)                                                             \
@@ -53,13 +44,28 @@ static inline size_t elementSize(ScalarType t) {
     default:
       AT_ERROR("Unknown ScalarType");
   }
+  return 0;
 #undef CASE_ELEMENTSIZE_CASE
 }
 
+template <typename T>
+struct CppTypeToScalarType;
+
+#define SPECIALIZE_CppTypeToScalarType(cpp_type, scalar_type) \
+  template<>                                                  \
+  struct CppTypeToScalarType<cpp_type>:                       \
+    std::integral_constant<c10::ScalarType,                   \
+                           c10::ScalarType::scalar_type>      \
+  {};
+
+AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType);
+
+#undef SPECIALIZE_CppTypeToScalarType
+
 }
 
-namespace c10 {
-using namespace at;
+namespace at {
+using namespace c10;
 }
 
 using namespace at;

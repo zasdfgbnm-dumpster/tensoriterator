@@ -51,3 +51,4 @@ constexpr uint32_t CUDA_THREADS_PER_BLOCK_FALLBACK = 256;
   }
 
 #define AT_ERROR(...)
+#define TORCH_CHECK(...)
