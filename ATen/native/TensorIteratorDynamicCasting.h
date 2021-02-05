@@ -3,6 +3,7 @@
 #include <complex>
 #include <type_traits>
 #include <c10/core/ScalarType.h>
+#include <c10/util/C++17.h>
 #include <ATen/detail/FunctionTraits.h>
 #include <ATen/native/TensorIterator.h>
 
@@ -45,12 +46,13 @@ struct needs_dynamic_casting<func_t, 0> {
 
     // we could assert output numbers are correct here, but checks
     // (including arity) are currently pushed outside of this struct.
-    if constexpr (std::is_void<cpp_type>::value) {
+    return c10::guts::if_constexpr<std::is_void<cpp_type>::value>([]() {
       return false;
-    } else {
-      return iter.dtype(0) != c10::CppTypeToScalarType<cpp_type>::value;
-    };
-    return false;
+    }, /* else */ [&](auto _) {
+      // decltype(_) is used to delay computation
+      using delayed_type = typename decltype(_)::template type_identity<cpp_type>;
+      return iter.dtype(0) != c10::CppTypeToScalarType<delayed_type>::value;
+    });
   }
 };
 
