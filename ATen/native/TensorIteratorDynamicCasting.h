@@ -49,7 +49,7 @@ struct needs_dynamic_casting<func_t, 0> {
       return false;
     } else {
       // decltype(_) is used to delay computation
-      using delayed_type = typename decltype(_)::template type_identity<cpp_type>;
+      using delayed_type = cpp_type;
       return iter.dtype(0) != c10::CppTypeToScalarType<delayed_type>::value;
     };
   }
