@@ -29,6 +29,14 @@ int64_t numel() {
   return std::accumulate(::shape.begin(), ::shape.end(), 1, std::multiplies<int64_t>());
 }
 
+bool can_use_32bit_indexing() {
+  return true;
+}
+
+std::array<TensorIteratorBase, 1> with_32bit_indexing() {
+  return {*this};
+}
+
 } iter;
 
 }
