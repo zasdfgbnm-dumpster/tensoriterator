@@ -10,6 +10,7 @@ extern std::vector<int64_t> shape;
 extern std::vector<at::ScalarType> dtypes;
 extern std::vector<char *> data_ptrs;
 extern bool is_contiguous;
+extern int64_t noutput;
 
 namespace at {
 
@@ -31,6 +32,10 @@ int64_t numel() {
   return std::accumulate(::shape.begin(), ::shape.end(), 1, std::multiplies<int64_t>());
 }
 
+int64_t ndim() {
+  return ::shape.size();
+}
+
 bool can_use_32bit_indexing() {
   return true;
 }
@@ -45,6 +50,10 @@ char *data_ptr(int64_t i) {
 
 bool is_contiguous() {
   return ::is_contiguous;
+}
+
+at::ScalarType input_dtype(int64_t i) {
+  return ::dtypes[i + ::noutput];
 }
 
 } iter;

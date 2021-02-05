@@ -163,7 +163,7 @@ void gpu_kernel_impl(TensorIteratorBase& iter, const func_t& f) {
       dtypes[i] = iter.dtype(i + 1);
     }
     auto loader = memory::LoadWithCast<traits::arity>(dtypes);
-    auto storer = memory::StoreWithCast(iter.dtype(0)());
+    auto storer = memory::StoreWithCast(iter.dtype(0));
     if (contiguous) {
       auto input_offset_calculator = TrivialOffsetCalculator<traits::arity>();
       auto output_offset_calculator = TrivialOffsetCalculator<1>();
