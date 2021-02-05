@@ -3,7 +3,7 @@
 std::vector<int64_t> shape = {};
 std::vector<std::vector<int64_t>> strides = {};
 std::vector<at::ScalarType> dtypes = {};
-std::vector<char *> data_ptr = {};
+std::vector<char *> data_ptrs = {};
 bool is_contiguous = true;
 int64_t noutputs = 1;
 
