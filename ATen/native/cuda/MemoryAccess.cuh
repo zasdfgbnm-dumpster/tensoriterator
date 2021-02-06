@@ -28,17 +28,10 @@ struct unroll {
 template <typename data_t, typename out_calc_t>
 struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
   data_t data;
-  int remaining;
 
   __device__ multi_outputs_unroll(data_t data, int remaining, out_calc_t oc):
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
-    data(data), remaining(remaining) {}
-
-  __device__ inline void load(std::tuple<float, float> &args, int idx) {
-    int linear_idx = threadIdx.x + block_work_size * idx;
-    std::get<0>(args) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
-    std::get<1>(args) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
-  }
+    data(data) {}
 
   __device__ inline void store(thrust::tuple<float, float> from, int idx) {
     int linear_idx = threadIdx.x + block_work_size * idx;
