@@ -32,11 +32,8 @@ struct derived : base {
 
 
 __global__ void kernel(bug obj) {
-#ifdef BUG
   derived(obj).obj.are_you_ok();
-#else
   obj.are_you_ok();
-#endif
 }
 
 int main() {
