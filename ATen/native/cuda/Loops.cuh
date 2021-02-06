@@ -63,7 +63,7 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   policy.load(args, idx);
 
   // compute
-  if (policy.check_inbounds(0)) {
+  if (threadIdx.x < remaining) {
     results[0] = f(std::get<0>(args[0]), std::get<1>(args[0]));
   }
 

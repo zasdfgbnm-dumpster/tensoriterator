@@ -34,10 +34,6 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
     data(data), remaining(remaining) {}
 
-  __device__ inline bool check_inbounds(int thread_work_elem) {
-    return ((threadIdx.x  + thread_work_elem*num_threads) < this->remaining);
-  }
-
   __device__ inline void load(std::tuple<float, float> *args, int idx) {
     int thread_idx = threadIdx.x;
     #pragma unroll
