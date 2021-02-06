@@ -8,18 +8,15 @@
 #include <ATen/native/TensorIterator.h>
 #include <THC/THCIntegerDivider.cuh>
 
-/// OffsetCalculator calculates the offset in bytes of a linear index for NARGS
-/// operands that share the same shape, but may have different strides.
-
 constexpr int MAX_DIMS = 25;
+using index_t = uint32_t;
+using offset_t = at::detail::Array<uint32_t, std::max<int>(2, 1)>;
 
-template <int NARGS, typename index_t = uint32_t>
 struct OffsetCalculator {
   // The offset for each argument. Wrapper around fixed-size array.
   // On CUDA, zero sized array is not allowed, so when we are handling nullary
   // operators, we need to create a size 1 offset to avoid compiler failure.
   // This size 1 offset is just a placeholder, and we will not use it.
-  using offset_type = at::detail::Array<index_t, std::max<int>(NARGS, 1)>;
 
   // if element_sizes is nullptr, then the strides will be in bytes, otherwise
   // the strides will be in # of elements.
@@ -31,17 +28,17 @@ struct OffsetCalculator {
       } else {
         sizes_[i] = IntDivider<index_t>(1);
       }
-      for (int arg = 0; arg < NARGS; arg++) {
+      for (int arg = 0; arg < 2; arg++) {
         int64_t element_size = (element_sizes == nullptr ? 1LL : element_sizes[arg]);
         strides_[i][arg] =  i < dims ? strides[arg][i] / element_size : 0;
       }
     }
   }
 
-  C10_HOST_DEVICE offset_type get(index_t linear_idx) const {
-    offset_type offsets;
+  C10_HOST_DEVICE offset_t get(index_t linear_idx) const {
+    offset_t offsets;
     #pragma unroll
-    for (int arg = 0; arg < NARGS; arg++) {
+    for (int arg = 0; arg < 2; arg++) {
       offsets[arg] = 0;
     }
 
@@ -54,7 +51,7 @@ struct OffsetCalculator {
       linear_idx = divmod.div;
 
       #pragma unroll
-      for (int arg = 0; arg < NARGS; arg++) {
+      for (int arg = 0; arg < 2; arg++) {
         offsets[arg] += divmod.mod * strides_[dim][arg];
       }
 
@@ -64,22 +61,16 @@ struct OffsetCalculator {
 
   int dims;
   IntDivider<index_t> sizes_[MAX_DIMS];
-  index_t strides_[MAX_DIMS][std::max<int>(NARGS, 1)];
+  index_t strides_[MAX_DIMS][2];
 };
 
-template <int NARGS, typename index_t = uint32_t>
 struct TrivialOffsetCalculator {
-  // The offset for each argument. Wrapper around fixed-size array.
-  // The offsets are in # of elements, not in bytes.
-  // On CUDA, zero sized array is not allowed, so when we are handling nullary
-  // operators, we need to create a size 1 offset to avoid compiler failure.
-  // This size 1 offset is just a placeholder, and we will not use it.
-  using offset_type = at::detail::Array<index_t, std::max<int>(NARGS, 1)>;
+  using offset_type = at::detail::Array<index_t, 2>;
 
   C10_HOST_DEVICE offset_type get(index_t linear_idx) const {
     offset_type offsets;
     #pragma unroll
-    for (int arg = 0; arg < NARGS; arg++) {
+    for (int arg = 0; arg < 2; arg++) {
       offsets[arg] = linear_idx;
     }
     return offsets;
