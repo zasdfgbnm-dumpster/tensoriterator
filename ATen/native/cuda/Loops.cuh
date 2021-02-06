@@ -15,7 +15,6 @@ constexpr int block_work_size = BLOCK_WORK_SIZE;
 #include <c10/util/C++17.h>
 #include <ATen/detail/FunctionTraits.h>
 #include <ATen/native/TensorIterator.h>
-#include <ATen/native/TensorIteratorDynamicCasting.h>
 #include <ATen/cuda/detail/OffsetCalculator.cuh>
 #include <ATen/native/cuda/MemoryAccess.cuh>
 
@@ -140,16 +139,9 @@ void gpu_kernel_multiple_outputs_impl(TensorIteratorBase& iter, const func_t& f)
   }
 
   int64_t numel = iter.numel();
-
-  if (iter.is_contiguous()) {
-    auto input_calc = TrivialOffsetCalculator<num_inputs>();
-    auto output_calc = TrivialOffsetCalculator<num_outputs>();
-    launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
-  } else {
-    auto input_calc = make_input_offset_calculator<num_inputs>(iter);
-    auto output_calc = make_output_offset_calculator<num_outputs>(iter);
-    launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
-  }
+  auto input_calc = make_input_offset_calculator<num_inputs>(iter);
+  auto output_calc = make_output_offset_calculator<num_outputs>(iter);
+  launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
 }
 } // namespace
 
