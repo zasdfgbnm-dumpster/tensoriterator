@@ -62,8 +62,8 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   args_t args;
 
   // load
-  std::get<0>(args) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
-  std::get<1>(args) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
+  std::get<0>(args) = *(data[2] + linear_idx);
+  std::get<1>(args) = *(data[3] + linear_idx);
 
   // compute
   results = f(std::get<0>(args), std::get<1>(args));
@@ -74,8 +74,8 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 #else
   offset_t offsets = oc.get(linear_idx);
 #endif
-  *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(results);
-  *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(results);
+  *(data[0] + offsets[0]) = thrust::get<0>(results);
+  *(data[1] + offsets[1]) = thrust::get<1>(results);
 }
 
 template <typename func_t, typename array_t, typename out_calc_t>
@@ -90,9 +90,9 @@ template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
   using output_t = thrust::tuple<float, float>;
 
-  at::detail::Array<char*, 4> data;
+  at::detail::Array<float*, 4> data;
   for (int i = 0; i < 4; i++) {
-    data[i] = (char*)iter.data_ptr(i);
+    data[i] = (float*)iter.data_ptr(i);
   }
 
   int64_t numel = iter.numel();
