@@ -113,7 +113,6 @@ struct unroll {
 
   template<typename args_t>
   __device__ inline void load(args_t *args, int idx) {
-    constexpr int arity = std::tuple_size<args_t>::value;
     int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
@@ -122,7 +121,8 @@ struct unroll {
       }
       int linear_idx = thread_idx + block_work_size * idx;
       auto offset = input_offset_calculator.get(linear_idx);
-      detail::static_unroll<detail::unroll_load_helper, arity>::with_args(*this, args, offset, loader, i, num_outputs);
+      detail::unroll_load_helper<0>::apply(*this, args, offset, loader, i, num_outputs);
+      detail::unroll_load_helper<1>::apply(*this, args, offset, loader, i, num_outputs);
       thread_idx += num_threads;
     }
   }
