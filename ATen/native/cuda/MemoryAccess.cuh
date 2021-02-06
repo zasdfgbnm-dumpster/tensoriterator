@@ -12,20 +12,6 @@
 
 namespace at { namespace native { namespace memory {
 
-namespace detail {
-
-template<int arg_index>
-struct unroll_load_helper {
-  template <typename args_t, typename policy_t, typename offset_t, typename loader_t>
-  static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j) {
-    // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
-    // need a +1 offset to get the input
-    std::get<arg_index>(args[j]) = *(reinterpret_cast<float *>(self.data[arg_index + 2]) + offset[arg_index]);
-  }
-};
-
-}  // namespace detail
-
 struct LoadWithoutCast {};
 
 namespace policies {
@@ -58,8 +44,8 @@ struct unroll {
       }
       int linear_idx = thread_idx + block_work_size * idx;
       auto offset = input_offset_calculator.get(linear_idx);
-      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[0 + 2]) + offset[0]);
-      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[1 + 2]) + offset[1]);
+      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[2]) + offset[0]);
+      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[3]) + offset[1]);
       thread_idx += num_threads;
     }
   }
