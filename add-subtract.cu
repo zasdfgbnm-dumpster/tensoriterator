@@ -3,22 +3,7 @@
 constexpr int64_t N = 5;
 __managed__ float data[N];
 
-
 #define CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) throw std::runtime_error(cudaGetErrorString(code)); } while(0)
-
-struct useless {};
-
-template<typename type, typename whatever>
-struct base {
-  type object;
-  __device__ base(type obj, whatever unused): object(obj) {}
-};
-
-template <typename type>
-struct derived : base<type, useless> {
-  __device__ derived(type obj):
-    base<type, useless>(obj, useless()) {}
-};
 
 struct echo {
   int n = 3;
@@ -35,6 +20,20 @@ struct echo {
 
     return x;
   }
+};
+
+struct useless {};
+
+template<typename type>
+struct base {
+  type object;
+  __device__ base(type obj, useless unused): object(obj) {}
+};
+
+template <typename type>
+struct derived : base<type> {
+  __device__ derived(type obj):
+    base<type>(obj, useless()) {}
 };
 
 
