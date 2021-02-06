@@ -6,15 +6,15 @@ __managed__ float data[N];
 #define CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) throw std::runtime_error(cudaGetErrorString(code)); } while(0)
 
 struct echo {
-  int three = 3;
+  int zero = 0;
   int large_unused[50];
 
-  __device__ int get(int i) const {
+  __device__ void get() const {
     // this function just returns i
-    if (three == 0) {
-      return 0;
+    if (zero == 0) {
+      return;
     }
-    return i;
+    printf("I have a bug\n");
   }
 };
 
@@ -31,22 +31,16 @@ struct derived : base {
 };
 
 
-__global__ void range_kernel(float *data, echo obj) {
+__global__ void range_kernel(echo obj) {
 #ifdef BUG
-  int offsets = derived(obj).obj.get(blockIdx.x);
+  derived(obj).obj.get();
 #else
-  int offsets = obj.get(blockIdx.x);
+  obj.get();
 #endif
-  *(data + offsets) = blockIdx.x;
 }
 
 int main() {
-  auto oc = echo();
-  range_kernel<<<N, 1>>>(data, oc);
+  range_kernel<<<1, 1>>>(echo());
   cudaDeviceSynchronize();
   CHECK();
-  for (int64_t i = 0; i < N; i++) {
-    std::cout << data[i] << ", ";
-  }
-  std::cout << std::endl;
 }
