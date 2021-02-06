@@ -25,17 +25,16 @@ struct OffsetCalculator {
   OffsetCalculator() : dims(3) {}
 
   __host__ __device__ int get(int i) const {
-    int offset;
-    offset = 0;
+    int x = 0;
 
     #pragma unroll
     for (int dim = 0; dim < MAX_DIMS; ++dim) {
       if (dim == dims) {
         break;
       }
-      offset = i;
+      x = i;
     }
-    return offset;
+    return x;
   }
 
   int dims;
