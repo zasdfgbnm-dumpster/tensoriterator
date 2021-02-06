@@ -19,7 +19,6 @@ int64_t noutputs = 2;
 int64_t N = 5;
 
 using namespace at;
-using namespace at::native;
 
 void compute() {
   std::cout << "is_contiguous = " << is_contiguous << std::endl;
