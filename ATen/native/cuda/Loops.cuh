@@ -121,8 +121,16 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
+} // namespace
+
 template <typename func_t>
-void gpu_kernel_multiple_outputs_impl(TensorIteratorBase& iter, const func_t& f) {
+void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
+  ASSERT_HOST_DEVICE_LAMBDA(func_t);
+
+  if (iter.numel() == 0) {
+    return;
+  }
+
   using traits = function_traits<func_t>;
   using output_t = typename traits::result_type;
   static_assert(is_tuple<output_t>::value, "f's return type must be `thrust::tuple`");
@@ -142,17 +150,6 @@ void gpu_kernel_multiple_outputs_impl(TensorIteratorBase& iter, const func_t& f)
   auto input_calc = make_input_offset_calculator<num_inputs>(iter);
   auto output_calc = make_output_offset_calculator<num_outputs>(iter);
   launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
-}
-} // namespace
-
-template <typename func_t>
-void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
-  ASSERT_HOST_DEVICE_LAMBDA(func_t);
-
-  if (iter.numel() == 0) {
-    return;
-  }
-  gpu_kernel_multiple_outputs_impl(iter, f);
 }
 
 }} //namespace at::native
