@@ -35,12 +35,8 @@ struct OffsetCalculator {
       if (dim == dims) {
         break;
       }
-      auto divmod = sizes_[dim].divmod(linear_idx);
-      linear_idx = divmod.div;
-
-      offsets[0] += divmod.mod * strides_[dim][0];
-      offsets[1] += divmod.mod * strides_[dim][1];
-
+      offsets[0] = linear_idx;
+      offsets[1] = linear_idx;
     }
     return offsets;
   }
