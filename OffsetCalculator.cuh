@@ -11,13 +11,7 @@ using index_t = uint32_t;
 using offset_t = at::detail::Array<uint32_t, std::max<int>(2, 1)>;
 
 struct OffsetCalculator {
-  OffsetCalculator(int dims) : dims(dims) {
-    for (int i = 0; i < MAX_DIMS; ++i) {
-      for (int arg = 0; arg < 2; arg++) {
-        strides_[i][arg] =  0;
-      }
-    }
-  }
+  OffsetCalculator(int dims) : dims(dims) {}
 
   __host__ __device__ offset_t get(index_t linear_idx) const {
     offset_t offsets;
