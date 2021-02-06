@@ -24,6 +24,7 @@ struct echo {
   echo(): n(3) {}
 
   __device__ int get(int i) const {
+    // this function just returns i
     int x = 0;
 
     if (n == 0) {
