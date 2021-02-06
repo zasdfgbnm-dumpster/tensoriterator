@@ -20,7 +20,7 @@ struct unroll_load_helper {
   static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j, int num_outputs) {
     // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
     // need a +1 offset to get the input
-    std::get<arg_index>(args[j]) = loader.load(self.data[arg_index + num_outputs], offset[arg_index], arg_index);
+    std::get<arg_index>(args[j]) = *(reinterpret_cast<float *>(self.data[arg_index + 2]) + offset[arg_index]);
   }
 };
 
