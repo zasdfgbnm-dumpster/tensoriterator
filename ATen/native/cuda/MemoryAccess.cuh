@@ -30,19 +30,14 @@ namespace detail {
 // so `static_unroll` is created to simulate `#pragma unroll`
 // using template metaprogramming.
 
-template<template<int i> typename func, int end, int current=0>
+template<template<int i> typename func, int end>
 struct static_unroll {
   template<typename... Args>
   static inline C10_HOST_DEVICE void with_args(Args&&... args) {
-    func<current>::apply(std::forward<Args>(args)...);
-    static_unroll<func, end, current+1>::with_args(args...);
+    func<0>::apply(std::forward<Args>(args)...);
+    func<1>::apply(std::forward<Args>(args)...);
+    static_assert(end == 2);
   }
-};
-
-template<template<int i> typename func, int end>
-struct static_unroll<func, end, end> {
-  template<typename... Args>
-  static inline C10_HOST_DEVICE void with_args(Args... args) {}
 };
 
 // helper structs to be used with static_unroll to load arguments
