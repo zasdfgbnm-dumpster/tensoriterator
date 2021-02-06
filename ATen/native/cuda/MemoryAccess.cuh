@@ -160,7 +160,8 @@ struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithout
       }
       int linear_idx = thread_idx + block_work_size * idx;
       auto offsets = this->output_offset_calculator.get(linear_idx);
-      memory::detail::static_unroll<detail::multi_outputs_store_helper, num_outputs>::with_args(this->data, offsets, from[i]);
+      detail::multi_outputs_store_helper<0>::apply(this->data, offsets, from[i]);
+      detail::multi_outputs_store_helper<1>::apply(this->data, offsets, from[i]);
       thread_idx += num_threads;
     }
   }
