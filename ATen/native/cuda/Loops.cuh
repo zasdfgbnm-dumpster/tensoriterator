@@ -64,7 +64,9 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   args_t args;
 
   // load
-  policy.load(args, idx);
+  int linear_idx = threadIdx.x + block_work_size * idx;
+  std::get<0>(args) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
+  std::get<1>(args) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
 
   // compute
   results = f(std::get<0>(args), std::get<1>(args));
