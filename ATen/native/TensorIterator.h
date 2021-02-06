@@ -53,10 +53,6 @@ int64_t noutputs() const {
   return ::noutputs;
 }
 
-int64_t element_size(int64_t i) const {
-  return c10::elementSize(::dtypes[i]);
-}
-
 std::vector<std::int64_t> &strides(int64_t i) const {
   return ::strides[i];
 }

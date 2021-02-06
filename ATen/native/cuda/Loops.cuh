@@ -32,7 +32,7 @@ static OffsetCalculator<N> make_input_offset_calculator(const TensorIteratorBase
   int64_t element_sizes[array_size];
   for (int i = 0; i < N; i++) {
     strides[i] = iter.strides(i + iter.noutputs()).data();
-    element_sizes[i] = iter.element_size(i + iter.noutputs());
+    element_sizes[i] = sizeof(float);
   }
   return OffsetCalculator<N>(iter.ndim(), iter.shape().data(), strides.data(), element_sizes);
 }
@@ -44,7 +44,7 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
   int64_t element_sizes[num_outputs];
   for (int i = 0; i < num_outputs; i++) {
     strides[i] = iter.strides(i).data();
-    element_sizes[i] = iter.element_size(i);
+    element_sizes[i] = sizeof(float);
   }
   return OffsetCalculator<num_outputs>(iter.ndim(), iter.shape().data(), strides.data(), element_sizes);
 }
