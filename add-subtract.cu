@@ -6,14 +6,13 @@ __managed__ float data[N];
 #define CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) throw std::runtime_error(cudaGetErrorString(code)); } while(0)
 
 struct echo {
-  int n = 3;
+  int not_zero = 3;
   int large_unused[50];
 
   __device__ int get(int i) const {
     // this function just returns i
-    int x = 0;
-    if (n == 0) {
-      return x;
+    if (not_zero == 0) {
+      return 0;
     }
     return i;
   }
