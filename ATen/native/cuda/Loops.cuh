@@ -2,6 +2,7 @@
 #pragma once
 
 #include <c10/macros/Macros.h>
+#include <iostream>
 
 #define NUM_THREADS (C10_WARP_SIZE * 2)
 #define THREAD_WORK_SIZE 4

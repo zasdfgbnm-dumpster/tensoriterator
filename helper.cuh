@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <c10/macros/Macros.h>
 
 template <typename T>
 T *arange(int64_t size) {
@@ -39,8 +40,10 @@ void print(T *data, int64_t size) {
   T *buf = new T[size];
   int64_t size_ = size * sizeof(T);
   cudaDeviceSynchronize();
+  C10_CUDA_KERNEL_LAUNCH_CHECK();
   cudaMemcpy(buf, data, size_, cudaMemcpyDeviceToHost);
   cudaDeviceSynchronize();
+  C10_CUDA_KERNEL_LAUNCH_CHECK();
   for (int64_t i = 0; i < size; i++) {
     std::cout << buf[i] << ", ";
   }
