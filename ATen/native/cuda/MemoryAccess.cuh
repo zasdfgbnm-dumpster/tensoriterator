@@ -17,7 +17,7 @@ namespace detail {
 template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t, typename policy_t, typename offset_t, typename loader_t>
-  static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j, int num_outputs) {
+  static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j) {
     // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
     // need a +1 offset to get the input
     std::get<arg_index>(args[j]) = *(reinterpret_cast<float *>(self.data[arg_index + 2]) + offset[arg_index]);
@@ -58,8 +58,8 @@ struct unroll {
       }
       int linear_idx = thread_idx + block_work_size * idx;
       auto offset = input_offset_calculator.get(linear_idx);
-      detail::unroll_load_helper<0>::apply(*this, args, offset, loader, i, num_outputs);
-      detail::unroll_load_helper<1>::apply(*this, args, offset, loader, i, num_outputs);
+      detail::unroll_load_helper<0>::apply(*this, args, offset, loader, i);
+      detail::unroll_load_helper<1>::apply(*this, args, offset, loader, i);
       thread_idx += num_threads;
     }
   }
