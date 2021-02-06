@@ -43,13 +43,13 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
     int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
-      if (thread_idx >= this->remaining) {
+      if (thread_idx >= remaining) {
         return;
       }
       int linear_idx = thread_idx + block_work_size * idx;
-      auto offset = this->input_offset_calculator.get(linear_idx);
-      std::get<0>(args[i]) = *(reinterpret_cast<float *>(this->data[2]) + offset[0]);
-      std::get<1>(args[i]) = *(reinterpret_cast<float *>(this->data[3]) + offset[1]);
+      auto offset = input_offset_calculator.get(linear_idx);
+      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[2]) + offset[0]);
+      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[3]) + offset[1]);
       thread_idx += num_threads;
     }
   }
