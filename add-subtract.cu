@@ -24,16 +24,16 @@ template <typename out_calc_t>
 __global__ void range_kernel(float *data, out_calc_t oc) {
 #ifdef BUG
   auto container = container_derived<out_calc_t>(oc);
-  offset_t offsets = container.object.get(blockIdx.x);
+  int offsets = container.object.get(blockIdx.x);
 #else
-  offset_t offsets = oc.get(blockIdx.x);
+  int offsets = oc.get(blockIdx.x);
 #endif
-  *(data + offsets[0]) = blockIdx.x;
+  *(data + offsets) = blockIdx.x;
 }
 
 int main() {
   float *data = zeros<float>(N);
-  auto oc = OffsetCalculator(3);
+  auto oc = OffsetCalculator();
   range_kernel<<<N, 1>>>(data, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
   cudaDeviceSynchronize();
