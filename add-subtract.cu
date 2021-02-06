@@ -7,7 +7,7 @@ __managed__ float data[N];
 
 struct echo {
   int n = 3;
-  int whatever[50];  // the size of this array must be large enough
+  int large_unused[50];
 
   __device__ int get(int i) const {
     // this function just returns i
