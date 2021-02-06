@@ -6,11 +6,8 @@ std::vector<int64_t> shape = {
   2, 3, 5
 };
 std::vector<std::vector<int64_t>> strides = {
-  // warning: strides are in bytes!
-  {4, 8, 24},
-  {4, 8, 24},
-  {4, 8, 24},
-  {4, 8, 24},
+  {1, 2, 6},
+  {1, 2, 6},
 };
 int64_t N = 5;
 
@@ -18,12 +15,10 @@ using namespace at;
 
 static OffsetCalculator make_output_offset_calculator() {
   std::array<const int64_t*, 2> strides;
-  int64_t element_sizes[2];
   for (int i = 0; i < 2; i++) {
     strides[i] = ::strides[i].data();
-    element_sizes[i] = sizeof(float);
   }
-  return OffsetCalculator(shape.size(), shape.data(), strides.data(), element_sizes);
+  return OffsetCalculator(shape.size(), shape.data(), strides.data());
 }
 
 struct useless {};
