@@ -4,8 +4,6 @@
 #include <c10/macros/Macros.h>
 #include <iostream>
 
-constexpr int num_threads = 1;
-
 #include <ATen/native/TensorIterator.h>
 #include <ATen/cuda/detail/OffsetCalculator.cuh>
 
@@ -44,7 +42,7 @@ struct C : B<out_calc_t, A> {
 };
 
 template <typename func_t, typename array_t, typename out_calc_t>
-C10_LAUNCH_BOUNDS_1(num_threads)
+C10_LAUNCH_BOUNDS_1(1)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
   int remaining = N - blockIdx.x;
   auto policy = C<out_calc_t>(oc);
