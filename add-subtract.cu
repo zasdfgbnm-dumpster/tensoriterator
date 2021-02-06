@@ -1,6 +1,6 @@
 #include <helper.cuh>
 #include <iostream>
-#include <ATen/cuda/detail/OffsetCalculator.cuh>
+#include <OffsetCalculator.cuh>
 #include <thrust/tuple.h>
 
 std::vector<int64_t> shape = {

@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
-#include <ATen/core/Array.h>
-#include <THC/THCIntegerDivider.cuh>
+#include <Array.h>
+#include <THCIntegerDivider.cuh>
 
 constexpr int MAX_DIMS = 25;
 using index_t = uint32_t;
