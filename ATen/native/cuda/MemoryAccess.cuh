@@ -18,23 +18,22 @@ namespace policies {
 
 // Assumption:
 // all tensors are contiguous, that is: stride == sizeof(type) for all tensors
-template<typename data_t, typename inp_calc_t, typename out_calc_t, typename loader_t>
+template<typename inp_calc_t, typename out_calc_t, typename loader_t>
 struct unroll {
-
-  data_t data;
   int remaining;
   inp_calc_t input_offset_calculator;
   out_calc_t output_offset_calculator;
 
-  __device__ unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc, loader_t l):
-    data(data), remaining(remaining), input_offset_calculator(ic), output_offset_calculator(oc) {}
+  __device__ unroll(int remaining, inp_calc_t ic, out_calc_t oc, loader_t l):
+    remaining(remaining), input_offset_calculator(ic), output_offset_calculator(oc) {}
 };
 
 template <typename data_t, typename inp_calc_t, typename out_calc_t>
-struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast> {
+struct multi_outputs_unroll : unroll<inp_calc_t, out_calc_t, LoadWithoutCast> {
+  data_t data;
 
   __device__ multi_outputs_unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc):
-    unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast>(data, remaining, ic, oc, LoadWithoutCast()) {}
+    unroll<inp_calc_t, out_calc_t, LoadWithoutCast>(remaining, ic, oc, LoadWithoutCast()), data(data) {}
 
   __device__ inline bool check_inbounds(int thread_work_elem) {
     return ((threadIdx.x  + thread_work_elem*num_threads) < this->remaining);
