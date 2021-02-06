@@ -26,11 +26,7 @@ struct unroll_load_helper {
 
 }  // namespace detail
 
-struct LoadWithoutCast {
-  __device__ float load(char *base_ptr, uint32_t offset, int arg) {
-    return *(reinterpret_cast<float *>(base_ptr) + offset);
-  }
-};
+struct LoadWithoutCast {};
 
 namespace policies {
 
