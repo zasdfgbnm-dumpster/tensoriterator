@@ -77,8 +77,6 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 
 template <typename func_t>
 void gpu_kernel_multiple_outputs(const func_t& f) {
-  using output_t = thrust::tuple<float, float>;
-
   at::detail::Array<float*, 4> data;
   for (int i = 0; i < 4; i++) {
     data[i] = data_ptrs[i];
