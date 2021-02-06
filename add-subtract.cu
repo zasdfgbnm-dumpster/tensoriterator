@@ -50,7 +50,7 @@ struct C : B<out_calc_t, Useless> {
 };
 
 template <typename array_t, typename out_calc_t>
-__global__ void unrolled_elementwise_kernel_for_multi_outputs(array_t data, out_calc_t oc) {
+__global__ void range_kernel(array_t data, out_calc_t oc) {
   thrust::tuple<float, float> results;
 #ifdef BUG
   auto policy = C<out_calc_t>(oc);
@@ -62,24 +62,21 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(array_t data, out_
   *(data[1] + offsets[1]) = blockIdx.x;
 }
 
-template <typename func_t>
-void gpu_kernel_multiple_outputs(const func_t& f) {
+void range() {
   at::detail::Array<float*, 4> data;
   for (int i = 0; i < 4; i++) {
     data[i] = data_ptrs[i];
   }
 
   auto oc = make_output_offset_calculator();
-  unrolled_elementwise_kernel_for_multi_outputs<<<N, 1, 0>>>(data, oc);
+  range_kernel<<<N, 1>>>(data, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
 int main() {
   data_ptrs[0] = zeros<float>(N);
   data_ptrs[1] = zeros<float>(N);
-  gpu_kernel_multiple_outputs([] __host__ __device__ (float a, float b) {
-    return thrust::tuple<float, float>(a + b, a - b);
-  });
+  range();
   cudaDeviceSynchronize();
   print(data_ptrs[0], N);
   print(data_ptrs[1], N);
