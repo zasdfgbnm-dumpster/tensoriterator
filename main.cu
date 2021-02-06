@@ -1,43 +1,44 @@
-#include <ATen/native/cuda/Loops.cuh>
-#include <helper.cuh>
+#include <vector>
+#include <iostream>
 
-std::vector<int64_t> shape = {
-  2, 3, 5
-};
-std::vector<std::vector<int64_t>> strides = {
-  // warning: strides are in bytes!
-  {4, 8, 24},
-  {4, 8, 24},
-  {4, 8, 24},
-  {4, 8, 24},
-};
-std::vector<at::ScalarType> dtypes = {
-  at::ScalarType::Float,
-  at::ScalarType::Float,
-  at::ScalarType::Float,
-  at::ScalarType::Float,
-};
 std::vector<char *> data_ptrs = {
-  nullptr, nullptr, nullptr, nullptr
+  nullptr, nullptr
 };
-bool is_contiguous = true;
-int64_t noutputs = 2;
 
-using namespace at;
-using namespace at::native;
+template <typename T>
+T *arange(int64_t size) {
+  T *buf = new T[size];
+  for (int64_t i = 0; i < size; i++) {
+    buf[i] = T(i);
+  }
+  T *ret;
+  int64_t size_ = size * sizeof(T);
+  cudaMalloc(&ret, size_);
+  cudaMemcpy(ret, buf, size_, cudaMemcpyHostToDevice);
+  cudaDeviceSynchronize();
+  delete [] buf;
+  // who cares about cudaFree :P LOL
+  return ret;
+}
+
+template <typename T>
+void print(T *data, int64_t size) {
+  T *buf = new T[size];
+  int64_t size_ = size * sizeof(T);
+  cudaDeviceSynchronize();
+  cudaMemcpy(buf, data, size_, cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
+  for (int64_t i = 0; i < size; i++) {
+    std::cout << buf[i] << ", ";
+  }
+  std::cout << std::endl;
+  delete [] buf;
+}
 
 int main() {
-  data_ptrs[0] = (char *)zeros<float>(30);
-  data_ptrs[1] = (char *)zeros<float>(30);
-  data_ptrs[2] = (char *)arange<float>(30);
-  data_ptrs[3] = (char *)arange<float>(30);
-  print((float *)data_ptrs[2], 30);
-  print((float *)data_ptrs[3], 30);
+  data_ptrs[0] = (char *)arange<float>(30);
+  data_ptrs[1] = (char *)arange<float>(30);
   cudaDeviceSynchronize();
-  TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel_multiple_outputs(iter, [] GPU_LAMBDA (float a, float b) {
-    return thrust::tuple<float, float>(a + b, a - b);
-  });
   print((float *)data_ptrs[0], 30);
   print((float *)data_ptrs[1], 30);
 }
