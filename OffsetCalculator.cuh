@@ -11,10 +11,10 @@ using index_t = uint32_t;
 using offset_t = at::detail::Array<uint32_t, std::max<int>(2, 1)>;
 
 struct OffsetCalculator {
-  OffsetCalculator(int dims, const int64_t* sizes, const int64_t* const* strides) : dims(dims) {
+  OffsetCalculator(int dims) : dims(dims) {
     for (int i = 0; i < MAX_DIMS; ++i) {
       for (int arg = 0; arg < 2; arg++) {
-        strides_[i][arg] =  i < dims ? strides[arg][i] : 0;
+        strides_[i][arg] =  0;
       }
     }
   }

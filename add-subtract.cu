@@ -18,7 +18,7 @@ static OffsetCalculator make_output_offset_calculator() {
   for (int i = 0; i < 2; i++) {
     strides[i] = ::strides[i].data();
   }
-  return OffsetCalculator(shape.size(), shape.data(), strides.data());
+  return OffsetCalculator(shape.size());
 }
 
 struct useless {};
