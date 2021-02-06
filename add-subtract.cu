@@ -43,8 +43,8 @@ struct container_derived : container_base<type, useless> {
 template <typename out_calc_t>
 __global__ void range_kernel(float *data, out_calc_t oc) {
 #ifdef BUG
-  auto policy = container_derived<out_calc_t>(oc);
-  offset_t offsets = policy.object.get(blockIdx.x);
+  auto container = container_derived<out_calc_t>(oc);
+  offset_t offsets = container.object.get(blockIdx.x);
 #else
   offset_t offsets = oc.get(blockIdx.x);
 #endif
