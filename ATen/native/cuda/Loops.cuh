@@ -75,18 +75,6 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
   policy.store(results, idx);
 }
 
-#ifndef GPU_LAMBDA
-#define GPU_LAMBDA __host__ __device__
-#endif
-
-#ifdef __NVCC__
-#define ASSERT_HOST_DEVICE_LAMBDA(type) \
-  static_assert(__nv_is_extended_host_device_lambda_closure_type(type), \
-                #type " must be a __host__ __device__ lambda")
-#else
-#define ASSERT_HOST_DEVICE_LAMBDA(type)
-#endif
-
 // check the return type is `thrust::tuple`, not `std::tuple`.
 template <typename T> struct is_tuple: std::false_type {};
 
@@ -110,8 +98,6 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
 
 template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
-  ASSERT_HOST_DEVICE_LAMBDA(func_t);
-
   if (iter.numel() == 0) {
     return;
   }

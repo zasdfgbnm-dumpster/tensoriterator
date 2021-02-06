@@ -25,7 +25,7 @@ void compute() {
   data_ptrs[0] = (char *)zeros<float>(30);
   data_ptrs[1] = (char *)zeros<float>(30);
   TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel_multiple_outputs(iter, [] GPU_LAMBDA (float a, float b) {
+  gpu_kernel_multiple_outputs(iter, [] C10_HOST_DEVICE (float a, float b) {
     return thrust::tuple<float, float>(a + b, a - b);
   });
   cudaDeviceSynchronize();
