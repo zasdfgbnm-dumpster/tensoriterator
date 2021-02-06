@@ -4,11 +4,7 @@
 #include <c10/macros/Macros.h>
 #include <iostream>
 
-#define NUM_THREADS (C10_WARP_SIZE * 2)
-#define BLOCK_WORK_SIZE NUM_THREADS
-
-constexpr int num_threads = NUM_THREADS;
-constexpr int block_work_size = BLOCK_WORK_SIZE;
+constexpr int num_threads = 1;
 
 #include <ATen/native/TensorIterator.h>
 #include <ATen/cuda/detail/OffsetCalculator.cuh>
@@ -50,13 +46,13 @@ struct C : B<out_calc_t, A> {
 template <typename func_t, typename array_t, typename out_calc_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
-  int remaining = N - block_work_size * blockIdx.x;
+  int remaining = N - blockIdx.x;
   auto policy = C<out_calc_t>(oc);
 
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
 
-  int linear_idx = threadIdx.x + block_work_size * blockIdx.x;
+  int linear_idx = threadIdx.x + blockIdx.x;
 
   if (threadIdx.x >= remaining) {
     return;
@@ -85,8 +81,7 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 template <typename func_t, typename array_t, typename out_calc_t>
 static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const func_t& f, array_t data, out_calc_t oc) {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
-  int64_t grid = (N + block_work_size - 1) / block_work_size;
-  unrolled_elementwise_kernel_for_multi_outputs<func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, oc);
+  unrolled_elementwise_kernel_for_multi_outputs<func_t, array_t><<<N, 1, 0>>>(N, f, data, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
