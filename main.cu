@@ -12,26 +12,30 @@ template <typename T>
 void echo_arange(int64_t size) {
   int64_t bytes = size * sizeof(T);
 
-  // set
-  T *buf = new T[size];
-  for (int64_t i = 0; i < size; i++) {
-    buf[i] = T(i);
-  }
-  print_array(buf, size);
+  // allocate host array
+  T *buf1 = new T[size];
+  T *buf2 = new T[size];
+
+  // allocate device array
   T *dev;
   cudaMalloc(&dev, bytes);
-  cudaDeviceSynchronize();
-  cudaMemcpy(dev, buf, bytes, cudaMemcpyDefault);
-  cudaDeviceSynchronize();
-  delete [] buf;
 
-  // print
-  buf = new T[size];
+  // fill buf1 with arange
+  for (int64_t i = 0; i < size; i++) {
+    buf1[i] = T(i);
+  }
+  print_array(buf1, size);
+
+  // copy buf1 -> dev -> buf2
   cudaDeviceSynchronize();
-  cudaMemcpy(buf, dev, bytes, cudaMemcpyDefault);
+  cudaMemcpy(dev, buf1, bytes, cudaMemcpyHostToDevice);
   cudaDeviceSynchronize();
-  print_array(buf, size);
-  delete [] buf;
+  cudaMemcpy(buf2, dev, bytes, cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
+  print_array(buf2, size);
+
+  delete [] buf1;
+  delete [] buf2;
 }
 
 int main() {
