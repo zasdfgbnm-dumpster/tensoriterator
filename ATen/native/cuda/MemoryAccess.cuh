@@ -25,10 +25,9 @@ struct unroll {
   int remaining;
   inp_calc_t input_offset_calculator;
   out_calc_t output_offset_calculator;
-  loader_t loader;
 
   __device__ unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc, loader_t l):
-    data(data), remaining(remaining), input_offset_calculator(ic), output_offset_calculator(oc), loader(l) {}
+    data(data), remaining(remaining), input_offset_calculator(ic), output_offset_calculator(oc) {}
 
   __device__ inline bool check_inbounds(int thread_work_elem) {
     return ((threadIdx.x  + thread_work_elem*num_threads) < remaining);
