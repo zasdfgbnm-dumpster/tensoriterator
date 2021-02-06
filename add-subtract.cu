@@ -75,13 +75,6 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   *(data[1] + offsets[1]) = thrust::get<1>(results);
 }
 
-template <typename func_t, typename array_t, typename out_calc_t>
-static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const func_t& f, array_t data, out_calc_t oc) {
-  unrolled_elementwise_kernel_for_multi_outputs<func_t, array_t><<<N, 1, 0>>>(N, f, data, oc);
-  C10_CUDA_KERNEL_LAUNCH_CHECK();
-}
-
-
 template <typename func_t>
 void gpu_kernel_multiple_outputs(const func_t& f) {
   using output_t = thrust::tuple<float, float>;
@@ -91,10 +84,9 @@ void gpu_kernel_multiple_outputs(const func_t& f) {
     data[i] = data_ptrs[i];
   }
 
-  int64_t numel = N;
-
-  auto output_calc = make_output_offset_calculator();
-  launch_unrolled_kernel_for_multi_outputs(numel, f, data, output_calc);
+  auto oc = make_output_offset_calculator();
+  unrolled_elementwise_kernel_for_multi_outputs<<<N, 1, 0>>>(N, f, data, oc);
+  C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
 void compute() {
