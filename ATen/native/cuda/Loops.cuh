@@ -111,7 +111,7 @@ void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
     auto output_calc = TrivialOffsetCalculator<num_outputs>();
     launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
   } else {
-    auto input_calc = make_input_offset_calculator<num_inputs>(iter);
+    auto input_calc = TrivialOffsetCalculator<num_inputs>();
     auto output_calc = make_output_offset_calculator<num_outputs>(iter);
     launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
   }
