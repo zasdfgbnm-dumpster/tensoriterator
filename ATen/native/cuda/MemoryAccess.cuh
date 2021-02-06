@@ -176,43 +176,4 @@ struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithout
 
 }  // namespace policies
 
-// This is only used in host, but we will wrap this into some templates
-// which is C10_HOST_DEVICE, so we have to make this C10_HOST_DEVICE
-// in order to compile
-template<typename scalar_t>
-inline C10_HOST_DEVICE int can_vectorize_up_to(char *pointer) {
-  uint64_t address = reinterpret_cast<uint64_t>(pointer);
-  constexpr int vec2_alignment = std::alignment_of<aligned_vector<scalar_t, 2>>::value;
-  constexpr int vec4_alignment = std::alignment_of<aligned_vector<scalar_t, 4>>::value;
-  if (address % vec4_alignment == 0) {
-    return 4;
-  } else if (address % vec2_alignment == 0) {
-    return 2;
-  }
-  return 1;
-}
-
-template<int i>
-struct can_vectorize_up_to_helper {
-  template <typename array_t, typename traits>
-  static C10_HOST_DEVICE void apply(int &result, array_t pointers, traits _) {
-    using arg_t = typename traits::template arg<i>::type;
-    // `pointers` hold the data_ptr for tensors [output, input0, input1, ...], so we
-    // need a +1 offset to get the input
-    result = std::min<int>(result, can_vectorize_up_to<arg_t>(pointers[i + 1]));
-  }
-};
-
-template<typename func_t, typename array_t>
-inline int can_vectorize_up_to(array_t pointers) {
-  using traits = function_traits<func_t>;
-  using return_t = typename traits::result_type;
-  constexpr int arity = traits::arity;
-  int result = can_vectorize_up_to<return_t>(pointers[0]);
-  // We need to get the type for each argument of `func_t`, this can only
-  // be done at compile time.
-  detail::static_unroll<can_vectorize_up_to_helper, arity>::with_args(result, pointers, traits());
-  return result;
-}
-
 }}} // namespace at::native::memory
