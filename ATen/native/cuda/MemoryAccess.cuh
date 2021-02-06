@@ -25,15 +25,14 @@ struct unroll {
   __device__ unroll(out_calc_t oc, loader_t l): output_offset_calculator(oc) {}
 };
 
-template <typename data_t, typename inp_calc_t, typename out_calc_t>
+template <typename data_t, typename out_calc_t>
 struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
   data_t data;
   int remaining;
-  inp_calc_t input_offset_calculator;
 
-  __device__ multi_outputs_unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc):
+  __device__ multi_outputs_unroll(data_t data, int remaining, out_calc_t oc):
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
-    data(data), remaining(remaining), input_offset_calculator(ic) {}
+    data(data), remaining(remaining) {}
 
   __device__ inline bool check_inbounds(int thread_work_elem) {
     return ((threadIdx.x  + thread_work_elem*num_threads) < this->remaining);
@@ -47,9 +46,8 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
         return;
       }
       int linear_idx = thread_idx + block_work_size * idx;
-      auto offset = input_offset_calculator.get(linear_idx);
-      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[2]) + offset[0]);
-      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[3]) + offset[1]);
+      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
+      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
       thread_idx += num_threads;
     }
   }

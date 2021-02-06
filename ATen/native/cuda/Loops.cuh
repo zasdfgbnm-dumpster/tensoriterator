@@ -47,11 +47,11 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
   return OffsetCalculator<num_outputs>(iter.ndim(), iter.shape().data(), strides.data(), element_sizes);
 }
 
-template <int num_outputs, typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t>
+template <int num_outputs, typename func_t, typename array_t, typename out_calc_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, inp_calc_t ic, out_calc_t oc) {
+__global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
   int remaining = N - block_work_size * blockIdx.x;
-  auto policy = memory::policies::multi_outputs_unroll<array_t, inp_calc_t, out_calc_t>(data, remaining, ic, oc);
+  auto policy = memory::policies::multi_outputs_unroll<array_t, out_calc_t>(data, remaining, oc);
 
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
@@ -76,11 +76,11 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   policy.store(results, idx);
 }
 
-template <int num_outputs, typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t>
-static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const func_t& f, array_t data, inp_calc_t ic, out_calc_t oc) {
+template <int num_outputs, typename func_t, typename array_t, typename out_calc_t>
+static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const func_t& f, array_t data, out_calc_t oc) {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = (N + block_work_size - 1) / block_work_size;
-  unrolled_elementwise_kernel_for_multi_outputs<num_outputs, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, ic, oc);
+  unrolled_elementwise_kernel_for_multi_outputs<num_outputs, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
@@ -107,12 +107,10 @@ void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
   int64_t numel = iter.numel();
 
   if (iter.is_contiguous()) {
-    auto input_calc = TrivialOffsetCalculator<num_inputs>();
     auto output_calc = TrivialOffsetCalculator<num_outputs>();
-    launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
+    launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, output_calc);
   } else {
-    auto input_calc = TrivialOffsetCalculator<num_inputs>();
     auto output_calc = make_output_offset_calculator<num_outputs>(iter);
-    launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
+    launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, output_calc);
   }
 }
