@@ -99,20 +99,7 @@ struct unroll {
   }
 
   template<typename scalar_t>
-  __device__ inline void store(scalar_t *from, int idx) {
-    int thread_idx = threadIdx.x;
-    scalar_t *to = reinterpret_cast<scalar_t *>(data[0]) + block_work_size * idx;
-    #pragma unroll
-    for (int i = 0; i < thread_work_size; i++) {
-      if (thread_idx >= remaining) {
-        return;
-      }
-      int linear_idx = thread_idx + block_work_size * idx;
-      int offset = output_offset_calculator.get(linear_idx)[0];
-      storer.store(from[i], data[0], offset);
-      thread_idx += num_threads;
-    }
-  }
+  __device__ inline void store(scalar_t *from, int idx) {}
 };
 
 template <typename data_t, typename inp_calc_t, typename out_calc_t, int num_outputs>
