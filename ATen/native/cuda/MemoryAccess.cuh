@@ -52,19 +52,6 @@ struct static_unroll<func, end, end> {
 // one by one
 
 template<int arg_index>
-struct vectorized_load_helper {
-  template <typename args_t, typename policy_t>
-  static __device__ void apply(policy_t &self, args_t *args, int idx) {
-    using arg_t = std::tuple_element_t<arg_index, args_t>;
-    // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
-    // need a +1 offset to get the input
-    auto ptr = reinterpret_cast<arg_t *>(self.data[arg_index + 1]) + block_work_size * idx;
-    auto args_accessor = [&args] __device__ (int thread_unroll_idx) -> arg_t & { return std::get<arg_index>(args[thread_unroll_idx]); };
-    self.load_single_arg(args_accessor, ptr);
-  }
-};
-
-template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t, typename policy_t, typename offset_t, typename loader_t>
   static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j, int num_outputs) {
@@ -97,30 +84,6 @@ struct LoadWithoutCast {
   }
 };
 
-template <int N>
-struct LoadWithCast {
-  using array_t = at::detail::Array<at::ScalarType, std::max<int>(N, 1)>;
-  using size_array_t = at::detail::Array<uint32_t, std::max<int>(N, 1)>;
-
-  array_t dtypes;
-  size_array_t element_sizes;
-
-  template<typename array_t_>
-  LoadWithCast(array_t_ dtypes) {
-    #pragma unroll
-    for (int i = 0; i < N; i++) {
-      this->dtypes[i] = dtypes[i];
-      element_sizes[i] = c10::elementSize(dtypes[i]);
-    }
-  }
-
-  template<typename scalar_t>
-  __device__ scalar_t load(char *base_ptr, uint32_t offset, int arg) {
-    void *ptr = base_ptr + element_sizes[arg] * offset;
-    return c10::fetch_and_cast<scalar_t>(dtypes[arg], ptr);
-  }
-};
-
 struct StoreWithoutCast {
   template<typename scalar_t>
   __device__ void store(scalar_t value, char *base_ptr, uint32_t offset) {
@@ -128,16 +91,6 @@ struct StoreWithoutCast {
   }
 };
 
-struct StoreWithCast {
-  at::ScalarType dtype;
-  uint32_t element_size;
-  StoreWithCast(at::ScalarType dtype): dtype(dtype), element_size(c10::elementSize(dtype)) {}
-  template<typename scalar_t>
-  __device__ void store(scalar_t value, char *base_ptr, uint32_t offset) {
-    void *ptr = base_ptr + element_size * offset;
-    c10::cast_and_store<scalar_t>(dtype, ptr, value);
-  }
-};
 
 // aligned vector generates vectorized load/store on CUDA
 template<typename scalar_t, int vec_size>
@@ -195,65 +148,6 @@ struct unroll {
       int offset = output_offset_calculator.get(linear_idx)[0];
       storer.store(from[i], data[0], offset);
       thread_idx += num_threads;
-    }
-  }
-};
-
-// Assumption:
-// all tensors are contiguous, that is: stride == sizeof(type) for all tensors
-// Note:
-// Functions in vectorized policy does not do boundary check. It assumes the whole block
-// has its job to do. So the reminders should be handled by the the caller manually.
-template <int vec_size, typename data_t>  // vec_size: number of scalars, can be 1, 2, or 4.
-struct vectorized {
-
-  static_assert(thread_work_size % vec_size == 0, "The workload per thread must be a multiple of vec_size");
-  static constexpr int loop_size = thread_work_size / vec_size;
-
-  data_t data;
-
-  __device__ vectorized(data_t data) : data(data) {}
-
-  __device__ inline constexpr bool check_inbounds(int thread_work_elem) {
-    return true;
-  }
-
-  template<typename accessor_t, typename scalar_t>
-  __device__ inline void load_single_arg(accessor_t to, scalar_t *from) {
-    using vec_t = aligned_vector<scalar_t, vec_size>;
-    vec_t *from_ = reinterpret_cast<vec_t *>(from);
-    int thread_idx = threadIdx.x;
-    #pragma unroll
-    for (int i = 0; i < loop_size; i++) {
-      int index = thread_idx + i * num_threads;
-      vec_t v = from_[index];
-      #pragma unroll
-      for (int j = 0; j < vec_size; j++) {
-        to(vec_size * i + j) = v.val[j];
-      }
-    }
-  }
-
-  template<typename args_t>
-  __device__ inline void load(args_t *args, int idx) {
-    constexpr int arity = std::tuple_size<args_t>::value;
-    detail::static_unroll<detail::vectorized_load_helper, arity>::with_args(*this, args, idx);
-  }
-
-  template<typename scalar_t>
-  __device__ inline void store(scalar_t *from, int idx) {
-    using vec_t = aligned_vector<scalar_t, vec_size>;
-    scalar_t *to = reinterpret_cast<scalar_t *>(data[0]) + block_work_size * idx;
-    vec_t *to_ = reinterpret_cast<vec_t *>(to);
-    int thread_idx = threadIdx.x;
-    #pragma unroll
-    for (int i = 0; i < loop_size; i++) {
-      int index = thread_idx + i * num_threads;
-      vec_t v;
-      for (int j = 0; j < vec_size; j++) {
-        v.val[j] = from[vec_size * i + j];
-      }
-      to_[index] = v;
     }
   }
 };
