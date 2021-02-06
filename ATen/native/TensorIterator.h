@@ -8,7 +8,6 @@
 
 extern std::vector<int64_t> shape;
 extern std::vector<std::vector<int64_t>> strides;
-extern std::vector<at::ScalarType> dtypes;
 extern std::vector<char *> data_ptrs;
 extern bool is_contiguous;
 extern int64_t noutputs;
@@ -21,12 +20,8 @@ std::vector<int64_t> &shape() const {
   return ::shape;
 }
 
-at::ScalarType dtype(int64_t i) const {
-  return ::dtypes[i];
-}
-
 int64_t ntensors() const {
-  return ::dtypes.size();
+  return ::data_ptrs.size();
 }
 
 int64_t numel() const {
@@ -43,10 +38,6 @@ char *data_ptr(int64_t i) const {
 
 bool is_contiguous() const {
   return ::is_contiguous;
-}
-
-at::ScalarType input_dtype(int64_t i) const {
-  return ::dtypes[i + ::noutputs];
 }
 
 int64_t noutputs() const {

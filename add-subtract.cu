@@ -11,12 +11,6 @@ std::vector<std::vector<int64_t>> strides = {
   {4, 8, 24},
   {4, 8, 24},
 };
-std::vector<at::ScalarType> dtypes = {
-  at::ScalarType::Float,
-  at::ScalarType::Float,
-  at::ScalarType::Float,
-  at::ScalarType::Float,
-};
 std::vector<char *> data_ptrs = {
   nullptr, nullptr, nullptr, nullptr
 };
