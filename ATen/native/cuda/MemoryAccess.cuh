@@ -40,8 +40,7 @@ struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithout
     return ((threadIdx.x  + thread_work_elem*num_threads) < this->remaining);
   }
 
-  template<typename args_t>
-  __device__ inline void load(args_t *args, int idx) {
+  __device__ inline void load(std::tuple<float, float> *args, int idx) {
     int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
@@ -56,8 +55,7 @@ struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithout
     }
   }
 
-  template <typename return_t>
-  __device__ inline void store(return_t *from, int idx) {
+  __device__ inline void store(thrust::tuple<float, float> *from, int idx) {
     int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
