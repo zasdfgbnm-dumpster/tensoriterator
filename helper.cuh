@@ -19,6 +19,22 @@ T *arange(int64_t size) {
 }
 
 template <typename T>
+T *zeros(int64_t size) {
+  T *buf = new T[size];
+  for (int64_t i = 0; i < size; i++) {
+    buf[i] = 0;
+  }
+  T *ret;
+  int64_t size_ = size * sizeof(T);
+  cudaMalloc(&ret, size_);
+  cudaMemcpy(ret, buf, size_, cudaMemcpyHostToDevice);
+  cudaDeviceSynchronize();
+  delete [] buf;
+  // who cares about cudaFree :P LOL
+  return ret;
+}
+
+template <typename T>
 void print(T *data, int64_t size) {
   T *buf = new T[size];
   int64_t size_ = size * sizeof(T);

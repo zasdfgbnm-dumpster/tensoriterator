@@ -27,8 +27,8 @@ using namespace at;
 using namespace at::native;
 
 int main() {
-  data_ptrs[0] = (char *)arange<float>(30);
-  data_ptrs[1] = (char *)arange<float>(30);
+  data_ptrs[0] = (char *)zeros<float>(30);
+  data_ptrs[1] = (char *)zeros<float>(30);
   data_ptrs[2] = (char *)arange<float>(30);
   data_ptrs[3] = (char *)arange<float>(30);
   print((float *)data_ptrs[2], 30);
