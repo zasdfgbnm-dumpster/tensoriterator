@@ -14,7 +14,7 @@ std::vector<std::vector<int64_t>> strides = {
 std::vector<char *> data_ptrs = {
   nullptr, nullptr, nullptr, nullptr
 };
-bool is_contiguous = true;
+bool is_contiguous = false;
 int64_t noutputs = 2;
 int64_t N = 5;
 
@@ -40,10 +40,5 @@ int main() {
   print((float *)data_ptrs[2], N);
   print((float *)data_ptrs[3], N);
   std::cout << std::endl;
-
-  is_contiguous = true;
-  compute();
-
-  is_contiguous = false;
   compute();
 }

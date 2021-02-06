@@ -73,8 +73,11 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   results = f(std::get<0>(args), std::get<1>(args));
 
   // store
+#ifdef BUG
   auto offsets = policy.offsets(linear_idx);
-  // offset_t offsets = oc.get(linear_idx);
+#else
+  offset_t offsets = oc.get(linear_idx);
+#endif
   *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(results);
   *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(results);
 }
