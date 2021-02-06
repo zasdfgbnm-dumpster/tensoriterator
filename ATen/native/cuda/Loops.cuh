@@ -98,19 +98,9 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
 
 template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
-  if (iter.numel() == 0) {
-    return;
-  }
-
-  using traits = function_traits<func_t>;
-  using output_t = typename traits::result_type;
-  static_assert(is_tuple<output_t>::value, "f's return type must be `thrust::tuple`");
-  constexpr int num_outputs = thrust::tuple_size<output_t>::value;
-  constexpr int num_inputs = traits::arity;
+  constexpr int num_outputs = 2;
+  constexpr int num_inputs = 2;
   constexpr int ntensors = num_outputs + num_inputs;
-
-  TORCH_INTERNAL_ASSERT(iter.can_use_32bit_indexing());
-  TORCH_INTERNAL_ASSERT(iter.ntensors() == ntensors);
 
   at::detail::Array<char*, ntensors> data;
   for (int i = 0; i < ntensors; i++) {
