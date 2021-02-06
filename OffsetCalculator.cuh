@@ -12,13 +12,6 @@ using index_t = uint32_t;
 using offset_t = at::detail::Array<uint32_t, std::max<int>(2, 1)>;
 
 struct OffsetCalculator {
-  // The offset for each argument. Wrapper around fixed-size array.
-  // On CUDA, zero sized array is not allowed, so when we are handling nullary
-  // operators, we need to create a size 1 offset to avoid compiler failure.
-  // This size 1 offset is just a placeholder, and we will not use it.
-
-  // if element_sizes is nullptr, then the strides will be in bytes, otherwise
-  // the strides will be in # of elements.
   OffsetCalculator(int dims, const int64_t* sizes, const int64_t* const* strides) : dims(dims) {
     for (int i = 0; i < MAX_DIMS; ++i) {
       if (i < dims) {
