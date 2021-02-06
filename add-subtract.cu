@@ -38,17 +38,13 @@ template <typename type>
 struct container_derived : container_base<type, useless> {
   __device__ container_derived(type obj):
     container_base<type, useless>(obj, useless()) {}
-
-  __device__ inline offset_t offsets(int linear_idx) {
-    return this->object.get(linear_idx);
-  }
 };
 
 template <typename out_calc_t>
 __global__ void range_kernel(float *data, out_calc_t oc) {
 #ifdef BUG
   auto policy = container_derived<out_calc_t>(oc);
-  auto offsets = policy.offsets(blockIdx.x);
+  offset_t offsets = policy.object.get(blockIdx.x);
 #else
   offset_t offsets = oc.get(blockIdx.x);
 #endif
