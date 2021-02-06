@@ -26,29 +26,28 @@ static OffsetCalculator make_output_offset_calculator() {
   return OffsetCalculator(shape.size(), shape.data(), strides.data(), element_sizes);
 }
 
-struct Useless {};
+struct useless {};
 
-template<typename out_calc_t, typename A>
-struct B {
-  out_calc_t output_offset_calculator;
-
-  __device__ B(out_calc_t oc, A unused): output_offset_calculator(oc) {}
+template<typename type, typename whatever>
+struct container_base {
+  type object;
+  __device__ container_base(type obj, whatever unused): object(obj) {}
 };
 
-template <typename out_calc_t>
-struct C : B<out_calc_t, Useless> {
-  __device__ C(out_calc_t oc):
-    B<out_calc_t, Useless>(oc, Useless()) {}
+template <typename type>
+struct container_derived : container_base<type, useless> {
+  __device__ container_derived(type obj):
+    container_base<type, useless>(obj, useless()) {}
 
   __device__ inline offset_t offsets(int linear_idx) {
-    return this->output_offset_calculator.get(linear_idx);
+    return this->object.get(linear_idx);
   }
 };
 
 template <typename out_calc_t>
 __global__ void range_kernel(float *data, out_calc_t oc) {
 #ifdef BUG
-  auto policy = C<out_calc_t>(oc);
+  auto policy = container_derived<out_calc_t>(oc);
   auto offsets = policy.offsets(blockIdx.x);
 #else
   offset_t offsets = oc.get(blockIdx.x);
