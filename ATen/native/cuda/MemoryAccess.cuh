@@ -47,14 +47,14 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
 
   __device__ inline void store(thrust::tuple<float, float> *from, int idx) {
     int thread_idx = threadIdx.x;
-      if (thread_idx >= remaining) {
-        return;
-      }
-      int linear_idx = thread_idx + block_work_size * idx;
-      auto offsets = this->output_offset_calculator.get(linear_idx);
-      *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(from[0]);
-      *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(from[0]);
-      thread_idx += num_threads;
+    if (thread_idx >= remaining) {
+      return;
+    }
+    int linear_idx = thread_idx + block_work_size * idx;
+    auto offsets = this->output_offset_calculator.get(linear_idx);
+    *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(from[0]);
+    *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(from[0]);
+    thread_idx += num_threads;
   }
 };
 
