@@ -25,16 +25,6 @@ struct unroll_load_helper {
   }
 };
 
-template <int current>
-struct multi_outputs_store_helper {
-  C10_HOST_DEVICE static void apply(
-      at::detail::Array<char*, 4> data,
-      at::detail::Array<uint32_t, 2> offsets,
-      thrust::tuple<float, float> ret) {
-    *(reinterpret_cast<float *>(data[current]) + offsets[current]) = thrust::get<current>(ret);
-  }
-};
-
 }  // namespace detail
 
 struct LoadWithoutCast {
