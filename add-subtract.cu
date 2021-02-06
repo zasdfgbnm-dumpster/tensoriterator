@@ -53,33 +53,25 @@ struct C : B<out_calc_t, Useless> {
 template <typename func_t, typename array_t, typename out_calc_t>
 C10_LAUNCH_BOUNDS_1(1)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
-  int remaining = N - blockIdx.x;
-  auto policy = C<out_calc_t>(oc);
-
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
-
-  int linear_idx = threadIdx.x + blockIdx.x;
-
-  if (threadIdx.x >= remaining) {
-    return;
-  }
 
   return_t results;
   args_t args;
 
   // load
-  std::get<0>(args) = *(data[2] + linear_idx);
-  std::get<1>(args) = *(data[3] + linear_idx);
+  std::get<0>(args) = *(data[2] + blockIdx.x);
+  std::get<1>(args) = *(data[3] + blockIdx.x);
 
   // compute
   results = f(std::get<0>(args), std::get<1>(args));
 
   // store
 #ifdef BUG
-  auto offsets = policy.offsets(linear_idx);
+  auto policy = C<out_calc_t>(oc);
+  auto offsets = policy.offsets(blockIdx.x);
 #else
-  offset_t offsets = oc.get(linear_idx);
+  offset_t offsets = oc.get(blockIdx.x);
 #endif
   *(data[0] + offsets[0]) = thrust::get<0>(results);
   *(data[1] + offsets[1]) = thrust::get<1>(results);
