@@ -94,9 +94,6 @@ struct unroll {
       thread_idx += num_threads;
     }
   }
-
-  template<typename scalar_t>
-  __device__ inline void store(scalar_t *from, int idx) {}
 };
 
 template <typename data_t, typename inp_calc_t, typename out_calc_t, int num_outputs>
