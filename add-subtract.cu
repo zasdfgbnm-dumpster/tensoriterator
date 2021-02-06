@@ -1,7 +1,6 @@
 #include <helper.cuh>
 #include <iostream>
 #include <OffsetCalculator.cuh>
-#include <thrust/tuple.h>
 
 std::vector<int64_t> shape = {
   2, 3, 5
@@ -48,7 +47,6 @@ struct C : B<out_calc_t, Useless> {
 
 template <typename out_calc_t>
 __global__ void range_kernel(float *data, out_calc_t oc) {
-  thrust::tuple<float, float> results;
 #ifdef BUG
   auto policy = C<out_calc_t>(oc);
   auto offsets = policy.offsets(blockIdx.x);
