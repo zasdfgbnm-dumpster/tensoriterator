@@ -14,35 +14,6 @@ namespace at { namespace native { namespace memory {
 
 namespace detail {
 
-// What does the `static_unroll` do?
-//
-// We want to do something like:
-//
-//    using args_t = typename traits::ArgsTuple;
-//    args_t args;
-//    #pragma unroll
-//    for (int i = 0; i < traits::arity; i++) {
-//      std::get<i>(args) = ....
-//    }
-//
-// but unfortunately the above code does not work because
-// the template argument has to be a compile time constant
-// so `static_unroll` is created to simulate `#pragma unroll`
-// using template metaprogramming.
-
-template<template<int i> typename func, int end>
-struct static_unroll {
-  template<typename... Args>
-  static inline C10_HOST_DEVICE void with_args(Args&&... args) {
-    func<0>::apply(std::forward<Args>(args)...);
-    func<1>::apply(std::forward<Args>(args)...);
-    static_assert(end == 2);
-  }
-};
-
-// helper structs to be used with static_unroll to load arguments
-// one by one
-
 template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t, typename policy_t, typename offset_t, typename loader_t>
