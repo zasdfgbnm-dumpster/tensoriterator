@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
-#include <c10/macros/Macros.h>
 #include <ATen/core/Array.h>
 #include <THC/THCIntegerDivider.cuh>
 
@@ -34,7 +33,7 @@ struct OffsetCalculator {
     }
   }
 
-  C10_HOST_DEVICE offset_t get(index_t linear_idx) const {
+  __host__ __device__ offset_t get(index_t linear_idx) const {
     offset_t offsets;
     #pragma unroll
     for (int arg = 0; arg < 2; arg++) {
@@ -66,7 +65,7 @@ struct OffsetCalculator {
 struct TrivialOffsetCalculator {
   using offset_type = at::detail::Array<index_t, 2>;
 
-  C10_HOST_DEVICE offset_type get(index_t linear_idx) const {
+  __host__ __device__ offset_type get(index_t linear_idx) const {
     offset_type offsets;
     #pragma unroll
     for (int arg = 0; arg < 2; arg++) {

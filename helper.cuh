@@ -1,7 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <c10/macros/Macros.h>
+
+#define C10_CUDA_KERNEL_LAUNCH_CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) throw std::runtime_error(cudaGetErrorString(code)); } while(0)
 
 template <typename T>
 T *arange(int64_t size) {

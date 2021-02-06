@@ -1,5 +1,4 @@
 #include <helper.cuh>
-#include <c10/macros/Macros.h>
 #include <iostream>
 #include <ATen/cuda/detail/OffsetCalculator.cuh>
 #include <thrust/tuple.h>
@@ -101,7 +100,7 @@ void gpu_kernel_multiple_outputs(const func_t& f) {
 void compute() {
   data_ptrs[0] = zeros<float>(N);
   data_ptrs[1] = zeros<float>(N);
-  gpu_kernel_multiple_outputs([] C10_HOST_DEVICE (float a, float b) {
+  gpu_kernel_multiple_outputs([] __host__ __device__ (float a, float b) {
     return thrust::tuple<float, float>(a + b, a - b);
   });
   cudaDeviceSynchronize();
