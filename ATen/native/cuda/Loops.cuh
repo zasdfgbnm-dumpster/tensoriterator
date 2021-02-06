@@ -56,6 +56,10 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 
   int idx = blockIdx.x;
 
+  if (threadIdx.x >= remaining) {
+    return;
+  }
+
   return_t results;
   args_t args;
 
@@ -63,9 +67,7 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   policy.load(args, idx);
 
   // compute
-  if (threadIdx.x < remaining) {
-    results = f(std::get<0>(args), std::get<1>(args));
-  }
+  results = f(std::get<0>(args), std::get<1>(args));
 
   // store
   policy.store(results, idx);
