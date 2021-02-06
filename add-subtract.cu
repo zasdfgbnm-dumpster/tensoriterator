@@ -58,14 +58,6 @@ __global__ void range_kernel(float *data, out_calc_t oc) {
   *(data + offsets[0]) = blockIdx.x;
 }
 
-void range() {
-  at::detail::Array<float*, 4> data;
-  for (int i = 0; i < 4; i++) {
-    data[i] = data_ptrs[i];
-  }
-
-}
-
 int main() {
   float *data = zeros<float>(N);
   auto oc = make_output_offset_calculator();
