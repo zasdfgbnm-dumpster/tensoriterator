@@ -26,8 +26,8 @@ struct derived : base {
 };
 
 __global__ void kernel(bug obj) {
-  derived(obj).obj.are_you_ok();
-  obj.are_you_ok();
+  derived(obj).obj.are_you_ok();  // No, I have a bug!
+  obj.are_you_ok();  // I am fine, thank you!
 }
 
 int main() {
