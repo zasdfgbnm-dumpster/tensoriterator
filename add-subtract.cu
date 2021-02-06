@@ -2,24 +2,9 @@
 #include <iostream>
 #include <OffsetCalculator.cuh>
 
-std::vector<int64_t> shape = {
-  2, 3, 5
-};
-std::vector<std::vector<int64_t>> strides = {
-  {1, 2, 6},
-  {1, 2, 6},
-};
 int64_t N = 5;
 
 using namespace at;
-
-static OffsetCalculator make_output_offset_calculator() {
-  std::array<const int64_t*, 2> strides;
-  for (int i = 0; i < 2; i++) {
-    strides[i] = ::strides[i].data();
-  }
-  return OffsetCalculator(shape.size());
-}
 
 struct useless {};
 
@@ -48,7 +33,7 @@ __global__ void range_kernel(float *data, out_calc_t oc) {
 
 int main() {
   float *data = zeros<float>(N);
-  auto oc = make_output_offset_calculator();
+  auto oc = OffsetCalculator(3);
   range_kernel<<<N, 1>>>(data, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
   cudaDeviceSynchronize();
