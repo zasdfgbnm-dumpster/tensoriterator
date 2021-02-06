@@ -34,14 +34,14 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
     data(data), remaining(remaining) {}
 
-  __device__ inline void load(std::tuple<float, float> *args, int idx) {
+  __device__ inline void load(std::tuple<float, float> &args, int idx) {
     int thread_idx = threadIdx.x;
     if (thread_idx >= remaining) {
       return;
     }
     int linear_idx = thread_idx + block_work_size * idx;
-    std::get<0>(args[0]) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
-    std::get<1>(args[0]) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
+    std::get<0>(args) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
+    std::get<1>(args) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
     thread_idx += num_threads;
   }
 
