@@ -75,11 +75,6 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
   policy.store(results, idx);
 }
 
-// check the return type is `thrust::tuple`, not `std::tuple`.
-template <typename T> struct is_tuple: std::false_type {};
-
-template <typename ...T> struct is_tuple<thrust::tuple<T...>>: std::true_type {};
-
 template <int num_outputs, typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, inp_calc_t ic, out_calc_t oc) {
@@ -98,9 +93,17 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
 
 template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
+  if (iter.numel() == 0) {
+    return;
+  }
+
+  using output_t = thrust::tuple<float, float>;
   constexpr int num_outputs = 2;
   constexpr int num_inputs = 2;
   constexpr int ntensors = num_outputs + num_inputs;
+
+  TORCH_INTERNAL_ASSERT(iter.can_use_32bit_indexing());
+  TORCH_INTERNAL_ASSERT(iter.ntensors() == ntensors);
 
   at::detail::Array<char*, ntensors> data;
   for (int i = 0; i < ntensors; i++) {
