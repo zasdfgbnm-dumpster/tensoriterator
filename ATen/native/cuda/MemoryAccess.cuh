@@ -36,31 +36,25 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
 
   __device__ inline void load(std::tuple<float, float> *args, int idx) {
     int thread_idx = threadIdx.x;
-    #pragma unroll
-    for (int i = 0; i < 1; i++) {
-      if (thread_idx >= remaining) {
-        return;
-      }
-      int linear_idx = thread_idx + block_work_size * idx;
-      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
-      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
-      thread_idx += num_threads;
+    if (thread_idx >= remaining) {
+      return;
     }
+    int linear_idx = thread_idx + block_work_size * idx;
+    std::get<0>(args[0]) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
+    std::get<1>(args[0]) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
+    thread_idx += num_threads;
   }
 
   __device__ inline void store(thrust::tuple<float, float> *from, int idx) {
     int thread_idx = threadIdx.x;
-    #pragma unroll
-    for (int i = 0; i < 1; i++) {
-      if (thread_idx >= this->remaining) {
+      if (thread_idx >= remaining) {
         return;
       }
       int linear_idx = thread_idx + block_work_size * idx;
       auto offsets = this->output_offset_calculator.get(linear_idx);
-      *(reinterpret_cast<float *>(this->data[0]) + offsets[0]) = thrust::get<0>(from[i]);
-      *(reinterpret_cast<float *>(this->data[1]) + offsets[1]) = thrust::get<1>(from[i]);
+      *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(from[0]);
+      *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(from[0]);
       thread_idx += num_threads;
-    }
   }
 };
 
