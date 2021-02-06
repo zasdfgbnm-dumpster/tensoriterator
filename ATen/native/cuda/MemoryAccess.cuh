@@ -32,7 +32,7 @@ namespace policies {
 
 // Assumption:
 // all tensors are contiguous, that is: stride == sizeof(type) for all tensors
-template<typename data_t, typename inp_calc_t, typename out_calc_t, typename loader_t, int num_outputs = 1>
+template<typename data_t, typename inp_calc_t, typename out_calc_t, typename loader_t>
 struct unroll {
 
   data_t data;
@@ -65,11 +65,11 @@ struct unroll {
   }
 };
 
-template <typename data_t, typename inp_calc_t, typename out_calc_t, int num_outputs>
-struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast, num_outputs> {
+template <typename data_t, typename inp_calc_t, typename out_calc_t>
+struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast> {
 
   __device__ multi_outputs_unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc):
-    unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast, num_outputs>(data, remaining, ic, oc, LoadWithoutCast()) {}
+    unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast>(data, remaining, ic, oc, LoadWithoutCast()) {}
 
   template <typename return_t>
   __device__ inline void store(return_t *from, int idx) {
