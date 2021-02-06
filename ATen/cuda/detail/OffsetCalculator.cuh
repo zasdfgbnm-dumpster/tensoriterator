@@ -11,11 +11,7 @@
 /// OffsetCalculator calculates the offset in bytes of a linear index for NARGS
 /// operands that share the same shape, but may have different strides.
 
-#ifdef __HIP_PLATFORM_HCC__
-constexpr int MAX_DIMS = 16;
-#else
 constexpr int MAX_DIMS = 25;
-#endif
 
 template <int NARGS, typename index_t = uint32_t>
 struct OffsetCalculator {
