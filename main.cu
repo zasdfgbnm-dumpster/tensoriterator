@@ -1,6 +1,14 @@
 #include <iostream>
 
 template <typename T>
+void print_array(T *buf, int64_t size) {
+  for (int64_t i = 0; i < size; i++) {
+    std::cout << buf[i] << ", ";
+  }
+  std::cout << std::endl;
+}
+
+template <typename T>
 void echo_arange(int64_t size) {
   int64_t size_ = size * sizeof(T);
 
@@ -9,6 +17,7 @@ void echo_arange(int64_t size) {
   for (int64_t i = 0; i < size; i++) {
     buf[i] = T(i);
   }
+  print_array(buf, size);
   T *dev;
   cudaMalloc(&dev, size_);
   cudaDeviceSynchronize();
@@ -21,10 +30,7 @@ void echo_arange(int64_t size) {
   cudaDeviceSynchronize();
   cudaMemcpy(buf, dev, size_, cudaMemcpyDefault);
   cudaDeviceSynchronize();
-  for (int64_t i = 0; i < size; i++) {
-    std::cout << buf[i] << ", ";
-  }
-  std::cout << std::endl;
+  print_array(buf, size);
   delete [] buf;
 }
 
