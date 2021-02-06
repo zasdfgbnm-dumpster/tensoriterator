@@ -61,16 +61,3 @@ struct OffsetCalculator {
   IntDivider<index_t> sizes_[MAX_DIMS];
   index_t strides_[MAX_DIMS][2];
 };
-
-struct TrivialOffsetCalculator {
-  using offset_type = at::detail::Array<index_t, 2>;
-
-  __host__ __device__ offset_type get(index_t linear_idx) const {
-    offset_type offsets;
-    #pragma unroll
-    for (int arg = 0; arg < 2; arg++) {
-      offsets[arg] = linear_idx;
-    }
-    return offsets;
-  }
-};
