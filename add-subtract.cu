@@ -24,22 +24,20 @@ struct echo {
 
 struct useless {};
 
-template<typename type>
 struct base {
-  type object;
-  __device__ base(type obj, useless unused): object(obj) {}
+  echo object;
+  __device__ base(echo obj, useless unused): object(obj) {}
 };
 
-template <typename type>
-struct derived : base<type> {
-  __device__ derived(type obj):
-    base<type>(obj, useless()) {}
+struct derived : base {
+  __device__ derived(echo obj):
+    base(obj, useless()) {}
 };
 
 
 __global__ void range_kernel(float *data, echo obj) {
 #ifdef BUG
-  auto container = derived<echo>(obj);
+  auto container = derived(obj);
   int offsets = container.object.get(blockIdx.x);
 #else
   int offsets = obj.get(blockIdx.x);
