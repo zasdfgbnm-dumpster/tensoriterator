@@ -151,14 +151,6 @@ void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
   if (iter.numel() == 0) {
     return;
   }
-
-  if (!iter.can_use_32bit_indexing()) {
-    for (auto& sub_iter : iter.with_32bit_indexing()) {
-      gpu_kernel_multiple_outputs(sub_iter, f);
-    }
-    return;
-  }
-
   gpu_kernel_multiple_outputs_impl(iter, f);
 }
 
