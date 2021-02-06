@@ -58,8 +58,8 @@ struct unroll {
       }
       int linear_idx = thread_idx + block_work_size * idx;
       auto offset = input_offset_calculator.get(linear_idx);
-      detail::unroll_load_helper<0>::apply(*this, args, offset, loader, i);
-      detail::unroll_load_helper<1>::apply(*this, args, offset, loader, i);
+      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[0 + 2]) + offset[0]);
+      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[1 + 2]) + offset[1]);
       thread_idx += num_threads;
     }
   }
