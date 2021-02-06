@@ -25,7 +25,6 @@ struct derived : base {
     base(obj, useless()) {}
 };
 
-
 __global__ void kernel(bug obj) {
   derived(obj).obj.are_you_ok();
   obj.are_you_ok();
