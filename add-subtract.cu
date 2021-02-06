@@ -1,8 +1,8 @@
 #include <helper.cuh>
 #include <iostream>
-#include <OffsetCalculator.cuh>
 
 int64_t N = 5;
+constexpr int MAX_DIMS = 25;
 
 struct useless {};
 
@@ -17,6 +17,28 @@ struct container_derived : container_base<type, useless> {
   __device__ container_derived(type obj):
     container_base<type, useless>(obj, useless()) {}
 };
+
+struct OffsetCalculator {
+  OffsetCalculator() : dims(3) {}
+
+  __host__ __device__ int get(int i) const {
+    int offset;
+    offset = 0;
+
+    #pragma unroll
+    for (int dim = 0; dim < MAX_DIMS; ++dim) {
+      if (dim == dims) {
+        break;
+      }
+      offset = i;
+    }
+    return offset;
+  }
+
+  int dims;
+  int whatever[MAX_DIMS * 2];
+};
+
 
 template <typename out_calc_t>
 __global__ void range_kernel(float *data, out_calc_t oc) {
