@@ -4,8 +4,6 @@
 
 int64_t N = 5;
 
-using namespace at;
-
 struct useless {};
 
 template<typename type, typename whatever>
