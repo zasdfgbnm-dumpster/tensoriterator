@@ -37,14 +37,6 @@ int64_t ndim() const {
   return ::shape.size();
 }
 
-bool can_use_32bit_indexing() const {
-  return true;
-}
-
-std::array<TensorIteratorBase, 1> with_32bit_indexing() const {
-  return {*this};
-}
-
 char *data_ptr(int64_t i) const {
   return ::data_ptrs[i];
 }
@@ -67,19 +59,6 @@ int64_t element_size(int64_t i) const {
 
 std::vector<std::int64_t> &strides(int64_t i) const {
   return ::strides[i];
-}
-
-bool is_cpu_scalar(int64_t i) const {
-  return false;
-}
-
-template<typename T>
-T scalar_value(int64_t i) {
-  throw "wrong!";
-}
-
-void remove_operand(int64_t i) {
-  throw "wrong!";
 }
 
 };
