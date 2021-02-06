@@ -13,7 +13,6 @@ constexpr int thread_work_size = THREAD_WORK_SIZE;
 constexpr int block_work_size = BLOCK_WORK_SIZE;
 
 #include <c10/util/C++17.h>
-#include <ATen/detail/FunctionTraits.h>
 #include <ATen/native/TensorIterator.h>
 #include <ATen/cuda/detail/OffsetCalculator.cuh>
 #include <ATen/native/cuda/MemoryAccess.cuh>
@@ -51,7 +50,6 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
 
 template<typename func_t, typename policy_t>
 __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
-  using traits = function_traits<func_t>;
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
 
