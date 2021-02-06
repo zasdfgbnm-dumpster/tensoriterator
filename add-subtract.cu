@@ -1,7 +1,6 @@
 #include <iostream>
 
 constexpr int64_t N = 5;
-constexpr int MAX_DIMS = 25;
 __managed__ float data[N];
 
 
@@ -22,23 +21,21 @@ struct container_derived : container_base<type, useless> {
 };
 
 struct OffsetCalculator {
-  OffsetCalculator() : dims(3) {}
+  OffsetCalculator(): dims(3) {}
 
   __device__ int get(int i) const {
     int x = 0;
 
-    #pragma unroll
-    for (int dim = 0; dim < MAX_DIMS; ++dim) {
-      if (dim == dims) {
-        break;
-      }
-      x = i;
+    if (dims == 0) {
+      return x;
     }
+    x = i;
+
     return x;
   }
 
   int dims;
-  int whatever[MAX_DIMS * 2];
+  int whatever[50];
 };
 
 
