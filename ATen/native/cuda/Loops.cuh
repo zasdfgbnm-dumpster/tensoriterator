@@ -66,7 +66,9 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   results = f(std::get<0>(args), std::get<1>(args));
 
   // store
-  policy.store(results, idx);
+  auto offsets = policy.offsets(idx);
+  *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(results);
+  *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(results);
 }
 
 template <typename func_t, typename array_t, typename out_calc_t>

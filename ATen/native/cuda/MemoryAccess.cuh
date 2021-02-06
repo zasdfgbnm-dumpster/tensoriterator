@@ -33,11 +33,9 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
     data(data) {}
 
-  __device__ inline void store(thrust::tuple<float, float> from, int idx) {
+  __device__ inline offset_t offsets(int idx) {
     int linear_idx = threadIdx.x + block_work_size * idx;
-    auto offsets = this->output_offset_calculator.get(linear_idx);
-    *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(from);
-    *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(from);
+    return this->output_offset_calculator.get(linear_idx);
   }
 };
 
