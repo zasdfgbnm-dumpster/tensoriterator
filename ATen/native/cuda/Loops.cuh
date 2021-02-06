@@ -28,19 +28,19 @@ static OffsetCalculator make_output_offset_calculator(const TensorIteratorBase& 
 }
 
 
-template<typename out_calc_t, typename loader_t>
+template<typename out_calc_t, typename A>
 struct unroll {
   out_calc_t output_offset_calculator;
 
-  __device__ unroll(out_calc_t oc, loader_t l): output_offset_calculator(oc) {}
+  __device__ unroll(out_calc_t oc, A unused): output_offset_calculator(oc) {}
 };
 
-struct LoadWithoutCast {};
+struct A {};
 
 template <typename out_calc_t>
-struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
+struct multi_outputs_unroll : unroll<out_calc_t, A> {
   __device__ multi_outputs_unroll( out_calc_t oc):
-    unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()) {}
+    unroll<out_calc_t, A>(oc, A()) {}
 
   __device__ inline offset_t offsets(int linear_idx) {
     return this->output_offset_calculator.get(linear_idx);
