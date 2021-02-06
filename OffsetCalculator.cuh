@@ -27,10 +27,8 @@ struct OffsetCalculator {
 
   __host__ __device__ offset_t get(index_t linear_idx) const {
     offset_t offsets;
-    #pragma unroll
-    for (int arg = 0; arg < 2; arg++) {
-      offsets[arg] = 0;
-    }
+    offsets[0] = 0;
+    offsets[1] = 0;
 
     #pragma unroll
     for (int dim = 0; dim < MAX_DIMS; ++dim) {
@@ -40,10 +38,8 @@ struct OffsetCalculator {
       auto divmod = sizes_[dim].divmod(linear_idx);
       linear_idx = divmod.div;
 
-      #pragma unroll
-      for (int arg = 0; arg < 2; arg++) {
-        offsets[arg] += divmod.mod * strides_[dim][arg];
-      }
+      offsets[0] += divmod.mod * strides_[dim][0];
+      offsets[1] += divmod.mod * strides_[dim][1];
 
     }
     return offsets;
