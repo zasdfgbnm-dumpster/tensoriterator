@@ -52,8 +52,8 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
 template<typename func_t, typename policy_t>
 __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
   using traits = function_traits<func_t>;
-  using return_t = typename traits::result_type;
-  using args_t = typename traits::ArgsTuple;
+  using return_t = thrust::tuple<float, float>;
+  using args_t = std::tuple<float, float>;
 
   int idx = blockIdx.x;
 
