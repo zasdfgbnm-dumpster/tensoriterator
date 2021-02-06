@@ -48,7 +48,7 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
 
-  int idx = blockIdx.x;
+  int linear_idx = threadIdx.x + block_work_size * blockIdx.x;
 
   if (threadIdx.x >= remaining) {
     return;
@@ -58,7 +58,6 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   args_t args;
 
   // load
-  int linear_idx = threadIdx.x + block_work_size * idx;
   std::get<0>(args) = *(reinterpret_cast<float *>(data[2]) + linear_idx);
   std::get<1>(args) = *(reinterpret_cast<float *>(data[3]) + linear_idx);
 
@@ -66,7 +65,7 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
   results = f(std::get<0>(args), std::get<1>(args));
 
   // store
-  auto offsets = policy.offsets(idx);
+  auto offsets = policy.offsets(linear_idx);
   *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(results);
   *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(results);
 }

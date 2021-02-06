@@ -33,8 +33,7 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
     data(data) {}
 
-  __device__ inline offset_t offsets(int idx) {
-    int linear_idx = threadIdx.x + block_work_size * idx;
+  __device__ inline offset_t offsets(int linear_idx) {
     return this->output_offset_calculator.get(linear_idx);
   }
 };
