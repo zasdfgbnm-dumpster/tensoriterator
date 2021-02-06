@@ -27,11 +27,8 @@ struct unroll {
 
 template <typename data_t, typename out_calc_t>
 struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
-  data_t data;
-
   __device__ multi_outputs_unroll(data_t data, out_calc_t oc):
-    unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()),
-    data(data) {}
+    unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()) {}
 
   __device__ inline offset_t offsets(int linear_idx) {
     return this->output_offset_calculator.get(linear_idx);
