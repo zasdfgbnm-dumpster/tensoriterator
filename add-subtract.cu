@@ -20,7 +20,7 @@ std::vector<at::ScalarType> dtypes = {
 std::vector<char *> data_ptrs = {
   nullptr, nullptr, nullptr, nullptr
 };
-bool is_contiguous = false;
+bool is_contiguous = true;
 int64_t noutputs = 2;
 
 using namespace at;
