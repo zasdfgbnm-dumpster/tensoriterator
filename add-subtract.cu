@@ -10,7 +10,6 @@ struct bug {
   int large_unused[50];
 
   __device__ void are_you_ok() const {
-    // this function just returns i
     if (zero == 0) {
       printf("I am fine, thank you!\n");
       return;
