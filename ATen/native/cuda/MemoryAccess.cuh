@@ -18,19 +18,17 @@ template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t, typename policy_t, typename offset_t, typename loader_t>
   static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j, int num_outputs) {
-    using arg_t = std::tuple_element_t<arg_index, args_t>;
     // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
     // need a +1 offset to get the input
-    std::get<arg_index>(args[j]) = loader.template load<arg_t>(self.data[arg_index + num_outputs], offset[arg_index], arg_index);
+    std::get<arg_index>(args[j]) = loader.load(self.data[arg_index + num_outputs], offset[arg_index], arg_index);
   }
 };
 
 }  // namespace detail
 
 struct LoadWithoutCast {
-  template<typename scalar_t>
-  __device__ scalar_t load(char *base_ptr, uint32_t offset, int arg) {
-    return *(reinterpret_cast<scalar_t *>(base_ptr) + offset);
+  __device__ float load(char *base_ptr, uint32_t offset, int arg) {
+    return *(reinterpret_cast<float *>(base_ptr) + offset);
   }
 };
 
