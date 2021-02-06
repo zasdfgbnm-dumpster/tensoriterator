@@ -31,8 +31,7 @@ struct multi_outputs_store_helper {
       at::detail::Array<char*, 4> data,
       at::detail::Array<uint32_t, 2> offsets,
       thrust::tuple<float, float> ret) {
-    float *to = reinterpret_cast<float *>(data[current]) + offsets[current];
-    *to = thrust::get<current>(ret);
+    *(reinterpret_cast<float *>(data[current]) + offsets[current]) = thrust::get<current>(ret);
   }
 };
 
