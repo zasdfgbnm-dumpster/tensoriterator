@@ -102,11 +102,6 @@ void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
 
   int64_t numel = iter.numel();
 
-  if (iter.is_contiguous()) {
-    auto output_calc = TrivialOffsetCalculator();
-    launch_unrolled_kernel_for_multi_outputs(numel, f, data, output_calc);
-  } else {
-    auto output_calc = make_output_offset_calculator(iter);
-    launch_unrolled_kernel_for_multi_outputs(numel, f, data, output_calc);
-  }
+  auto output_calc = make_output_offset_calculator(iter);
+  launch_unrolled_kernel_for_multi_outputs(numel, f, data, output_calc);
 }

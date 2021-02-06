@@ -14,14 +14,11 @@ std::vector<std::vector<int64_t>> strides = {
 std::vector<char *> data_ptrs = {
   nullptr, nullptr, nullptr, nullptr
 };
-bool is_contiguous = false;
-int64_t noutputs = 2;
 int64_t N = 5;
 
 using namespace at;
 
 void compute() {
-  std::cout << "is_contiguous = " << is_contiguous << std::endl;
   data_ptrs[0] = (char *)zeros<float>(N);
   data_ptrs[1] = (char *)zeros<float>(N);
   TensorIteratorBase iter;  // uses the hardcoded globals above

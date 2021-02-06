@@ -8,8 +8,6 @@
 extern std::vector<int64_t> shape;
 extern std::vector<std::vector<int64_t>> strides;
 extern std::vector<char *> data_ptrs;
-extern bool is_contiguous;
-extern int64_t noutputs;
 
 namespace at {
 
@@ -17,10 +15,6 @@ struct TensorIteratorBase {
 
 std::vector<int64_t> &shape() const {
   return ::shape;
-}
-
-int64_t ntensors() const {
-  return ::data_ptrs.size();
 }
 
 int64_t numel() const {
@@ -33,14 +27,6 @@ int64_t ndim() const {
 
 char *data_ptr(int64_t i) const {
   return ::data_ptrs[i];
-}
-
-bool is_contiguous() const {
-  return ::is_contiguous;
-}
-
-int64_t noutputs() const {
-  return ::noutputs;
 }
 
 std::vector<std::int64_t> &strides(int64_t i) const {
