@@ -13,9 +13,6 @@ std::vector<std::vector<int64_t>> strides = {
   {4, 8, 24},
   {4, 8, 24},
 };
-std::vector<float *> data_ptrs = {
-  nullptr, nullptr, nullptr, nullptr
-};
 int64_t N = 5;
 
 using namespace at;
@@ -49,8 +46,8 @@ struct C : B<out_calc_t, Useless> {
   }
 };
 
-template <typename array_t, typename out_calc_t>
-__global__ void range_kernel(array_t data, out_calc_t oc) {
+template <typename out_calc_t>
+__global__ void range_kernel(float *data, out_calc_t oc) {
   thrust::tuple<float, float> results;
 #ifdef BUG
   auto policy = C<out_calc_t>(oc);
@@ -58,8 +55,7 @@ __global__ void range_kernel(array_t data, out_calc_t oc) {
 #else
   offset_t offsets = oc.get(blockIdx.x);
 #endif
-  *(data[0] + offsets[0]) = blockIdx.x;
-  *(data[1] + offsets[1]) = blockIdx.x;
+  *(data + offsets[0]) = blockIdx.x;
 }
 
 void range() {
@@ -68,16 +64,13 @@ void range() {
     data[i] = data_ptrs[i];
   }
 
-  auto oc = make_output_offset_calculator();
-  range_kernel<<<N, 1>>>(data, oc);
-  C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
 int main() {
-  data_ptrs[0] = zeros<float>(N);
-  data_ptrs[1] = zeros<float>(N);
-  range();
+  float *data = zeros<float>(N);
+  auto oc = make_output_offset_calculator();
+  range_kernel<<<N, 1>>>(data, oc);
+  C10_CUDA_KERNEL_LAUNCH_CHECK();
   cudaDeviceSynchronize();
-  print(data_ptrs[0], N);
-  print(data_ptrs[1], N);
+  print(data, N);
 }
