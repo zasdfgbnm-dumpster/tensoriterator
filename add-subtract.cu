@@ -31,6 +31,7 @@ static OffsetCalculator make_output_offset_calculator() {
   return OffsetCalculator(shape.size(), shape.data(), strides.data(), element_sizes);
 }
 
+struct Useless {};
 
 template<typename out_calc_t, typename A>
 struct B {
@@ -39,12 +40,10 @@ struct B {
   __device__ B(out_calc_t oc, A unused): output_offset_calculator(oc) {}
 };
 
-struct A {};
-
 template <typename out_calc_t>
-struct C : B<out_calc_t, A> {
-  __device__ C( out_calc_t oc):
-    B<out_calc_t, A>(oc, A()) {}
+struct C : B<out_calc_t, Useless> {
+  __device__ C(out_calc_t oc):
+    B<out_calc_t, Useless>(oc, Useless()) {}
 
   __device__ inline offset_t offsets(int linear_idx) {
     return this->output_offset_calculator.get(linear_idx);
