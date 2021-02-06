@@ -47,8 +47,12 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
   return OffsetCalculator<num_outputs>(iter.ndim(), iter.shape().data(), strides.data(), element_sizes);
 }
 
-template<typename func_t, typename policy_t>
-__device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
+template <int num_outputs, typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t>
+C10_LAUNCH_BOUNDS_1(num_threads)
+__global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, inp_calc_t ic, out_calc_t oc) {
+  int remaining = N - block_work_size * blockIdx.x;
+  auto policy = memory::policies::multi_outputs_unroll<array_t, inp_calc_t, out_calc_t>(data, remaining, ic, oc);
+
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
 
@@ -70,13 +74,6 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
 
   // store
   policy.store(results, idx);
-}
-
-template <int num_outputs, typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t>
-C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, inp_calc_t ic, out_calc_t oc) {
-  int remaining = N - block_work_size * blockIdx.x;
-  elementwise_kernel_helper(f, memory::policies::multi_outputs_unroll<array_t, inp_calc_t, out_calc_t>(data, remaining, ic, oc));
 }
 
 template <int num_outputs, typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t>
