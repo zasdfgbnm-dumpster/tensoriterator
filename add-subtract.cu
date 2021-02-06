@@ -12,13 +12,10 @@ struct echo {
   __device__ int get(int i) const {
     // this function just returns i
     int x = 0;
-
     if (n == 0) {
       return x;
     }
-    x = i;
-
-    return x;
+    return i;
   }
 };
 
