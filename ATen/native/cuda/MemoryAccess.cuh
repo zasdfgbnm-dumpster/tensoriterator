@@ -28,26 +28,6 @@ struct unroll {
 
   __device__ unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc, loader_t l):
     data(data), remaining(remaining), input_offset_calculator(ic), output_offset_calculator(oc) {}
-
-  __device__ inline bool check_inbounds(int thread_work_elem) {
-    return ((threadIdx.x  + thread_work_elem*num_threads) < remaining);
-  }
-
-  template<typename args_t>
-  __device__ inline void load(args_t *args, int idx) {
-    int thread_idx = threadIdx.x;
-    #pragma unroll
-    for (int i = 0; i < thread_work_size; i++) {
-      if (thread_idx >= remaining) {
-        return;
-      }
-      int linear_idx = thread_idx + block_work_size * idx;
-      auto offset = input_offset_calculator.get(linear_idx);
-      std::get<0>(args[i]) = *(reinterpret_cast<float *>(data[2]) + offset[0]);
-      std::get<1>(args[i]) = *(reinterpret_cast<float *>(data[3]) + offset[1]);
-      thread_idx += num_threads;
-    }
-  }
 };
 
 template <typename data_t, typename inp_calc_t, typename out_calc_t>
@@ -55,6 +35,26 @@ struct multi_outputs_unroll : unroll<data_t, inp_calc_t, out_calc_t, LoadWithout
 
   __device__ multi_outputs_unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc):
     unroll<data_t, inp_calc_t, out_calc_t, LoadWithoutCast>(data, remaining, ic, oc, LoadWithoutCast()) {}
+
+  __device__ inline bool check_inbounds(int thread_work_elem) {
+    return ((threadIdx.x  + thread_work_elem*num_threads) < this->remaining);
+  }
+
+  template<typename args_t>
+  __device__ inline void load(args_t *args, int idx) {
+    int thread_idx = threadIdx.x;
+    #pragma unroll
+    for (int i = 0; i < thread_work_size; i++) {
+      if (thread_idx >= this->remaining) {
+        return;
+      }
+      int linear_idx = thread_idx + block_work_size * idx;
+      auto offset = this->input_offset_calculator.get(linear_idx);
+      std::get<0>(args[i]) = *(reinterpret_cast<float *>(this->data[2]) + offset[0]);
+      std::get<1>(args[i]) = *(reinterpret_cast<float *>(this->data[3]) + offset[1]);
+      thread_idx += num_threads;
+    }
+  }
 
   template <typename return_t>
   __device__ inline void store(return_t *from, int idx) {
