@@ -24,7 +24,7 @@ struct container_derived : container_base<type, useless> {
 struct OffsetCalculator {
   OffsetCalculator() : dims(3) {}
 
-  __host__ __device__ int get(int i) const {
+  __device__ int get(int i) const {
     int x = 0;
 
     #pragma unroll
