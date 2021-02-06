@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <functional>
 #include <numeric>
-#include <c10/core/ScalarType.h>
 
 extern std::vector<int64_t> shape;
 extern std::vector<std::vector<int64_t>> strides;
