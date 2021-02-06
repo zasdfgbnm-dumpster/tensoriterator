@@ -21,7 +21,7 @@ struct container_derived : container_base<type, useless> {
 };
 
 struct echo {
-  echo(): dims(3) {}
+  echo(): n(3) {}
 
   __device__ int get(int i) const {
     int x = 0;
@@ -39,19 +39,18 @@ struct echo {
 };
 
 
-template <typename out_calc_t>
-__global__ void range_kernel(float *data, out_calc_t oc) {
+__global__ void range_kernel(float *data, echo obj) {
 #ifdef BUG
-  auto container = container_derived<out_calc_t>(oc);
+  auto container = container_derived<echo>(obj);
   int offsets = container.object.get(blockIdx.x);
 #else
-  int offsets = oc.get(blockIdx.x);
+  int offsets = obj.get(blockIdx.x);
 #endif
   *(data + offsets) = blockIdx.x;
 }
 
 int main() {
-  auto oc = OffsetCalculator();
+  auto oc = echo();
   range_kernel<<<N, 1>>>(data, oc);
   cudaDeviceSynchronize();
   CHECK();
