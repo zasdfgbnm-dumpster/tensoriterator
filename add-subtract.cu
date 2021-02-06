@@ -26,18 +26,30 @@ int64_t noutputs = 2;
 using namespace at;
 using namespace at::native;
 
-int main() {
+void compute() {
+  std::cout << "is_contiguous = " << is_contiguous << std::endl;
   data_ptrs[0] = (char *)zeros<float>(30);
   data_ptrs[1] = (char *)zeros<float>(30);
-  data_ptrs[2] = (char *)arange<float>(30);
-  data_ptrs[3] = (char *)arange<float>(30);
-  print((float *)data_ptrs[2], 30);
-  print((float *)data_ptrs[3], 30);
-  cudaDeviceSynchronize();
   TensorIteratorBase iter;  // uses the hardcoded globals above
   gpu_kernel_multiple_outputs(iter, [] GPU_LAMBDA (float a, float b) {
     return thrust::tuple<float, float>(a + b, a - b);
   });
+  cudaDeviceSynchronize();
   print((float *)data_ptrs[0], 30);
   print((float *)data_ptrs[1], 30);
+  std::cout << std::endl;
+}
+
+int main() {
+  data_ptrs[2] = (char *)arange<float>(30);
+  data_ptrs[3] = (char *)arange<float>(30);
+  print((float *)data_ptrs[2], 30);
+  print((float *)data_ptrs[3], 30);
+  std::cout << std::endl;
+
+  is_contiguous = true;
+  compute();
+
+  is_contiguous = false;
+  compute();
 }
