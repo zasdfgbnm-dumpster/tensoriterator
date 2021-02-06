@@ -37,8 +37,7 @@ struct derived : base {
 
 __global__ void range_kernel(float *data, echo obj) {
 #ifdef BUG
-  auto container = derived(obj);
-  int offsets = container.object.get(blockIdx.x);
+  int offsets = derived(obj).object.get(blockIdx.x);
 #else
   int offsets = obj.get(blockIdx.x);
 #endif
