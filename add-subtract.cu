@@ -1,7 +1,6 @@
 #include <helper.cuh>
 #include <c10/macros/Macros.h>
 #include <iostream>
-#include <ATen/native/TensorIterator.h>
 #include <ATen/cuda/detail/OffsetCalculator.cuh>
 #include <thrust/tuple.h>
 
@@ -15,21 +14,21 @@ std::vector<std::vector<int64_t>> strides = {
   {4, 8, 24},
   {4, 8, 24},
 };
-std::vector<char *> data_ptrs = {
+std::vector<float *> data_ptrs = {
   nullptr, nullptr, nullptr, nullptr
 };
 int64_t N = 5;
 
 using namespace at;
 
-static OffsetCalculator make_output_offset_calculator(const TensorIteratorBase& iter) {
+static OffsetCalculator make_output_offset_calculator() {
   std::array<const int64_t*, 2> strides;
   int64_t element_sizes[2];
   for (int i = 0; i < 2; i++) {
-    strides[i] = iter.strides(i).data();
+    strides[i] = ::strides[i].data();
     element_sizes[i] = sizeof(float);
   }
-  return OffsetCalculator(iter.ndim(), iter.shape().data(), strides.data(), element_sizes);
+  return OffsetCalculator(shape.size(), shape.data(), strides.data(), element_sizes);
 }
 
 
@@ -96,38 +95,37 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
 
 
 template <typename func_t>
-void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
+void gpu_kernel_multiple_outputs(const func_t& f) {
   using output_t = thrust::tuple<float, float>;
 
   at::detail::Array<float*, 4> data;
   for (int i = 0; i < 4; i++) {
-    data[i] = (float*)iter.data_ptr(i);
+    data[i] = data_ptrs[i];
   }
 
-  int64_t numel = iter.numel();
+  int64_t numel = N;
 
-  auto output_calc = make_output_offset_calculator(iter);
+  auto output_calc = make_output_offset_calculator();
   launch_unrolled_kernel_for_multi_outputs(numel, f, data, output_calc);
 }
 
 void compute() {
-  data_ptrs[0] = (char *)zeros<float>(N);
-  data_ptrs[1] = (char *)zeros<float>(N);
-  TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel_multiple_outputs(iter, [] C10_HOST_DEVICE (float a, float b) {
+  data_ptrs[0] = zeros<float>(N);
+  data_ptrs[1] = zeros<float>(N);
+  gpu_kernel_multiple_outputs([] C10_HOST_DEVICE (float a, float b) {
     return thrust::tuple<float, float>(a + b, a - b);
   });
   cudaDeviceSynchronize();
-  print((float *)data_ptrs[0], N);
-  print((float *)data_ptrs[1], N);
+  print(data_ptrs[0], N);
+  print(data_ptrs[1], N);
   std::cout << std::endl;
 }
 
 int main() {
-  data_ptrs[2] = (char *)arange<float>(N);
-  data_ptrs[3] = (char *)arange<float>(N);
-  print((float *)data_ptrs[2], N);
-  print((float *)data_ptrs[3], N);
+  data_ptrs[2] = arange<float>(N);
+  data_ptrs[3] = arange<float>(N);
+  print(data_ptrs[2], N);
+  print(data_ptrs[3], N);
   std::cout << std::endl;
   compute();
 }

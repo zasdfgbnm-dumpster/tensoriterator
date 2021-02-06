@@ -3,9 +3,9 @@
 #include <array>
 #include <cstdint>
 #include <iostream>
+#include <vector>
 #include <c10/macros/Macros.h>
 #include <ATen/core/Array.h>
-#include <ATen/native/TensorIterator.h>
 #include <THC/THCIntegerDivider.cuh>
 
 constexpr int MAX_DIMS = 25;
