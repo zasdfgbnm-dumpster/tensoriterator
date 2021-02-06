@@ -20,7 +20,8 @@ constexpr int block_work_size = BLOCK_WORK_SIZE;
 
 #include <thrust/tuple.h>
 
-namespace at { namespace native {
+using namespace at;
+using namespace at::native;
 
 template<int N>
 static OffsetCalculator<N> make_input_offset_calculator(const TensorIteratorBase& iter) {
@@ -74,17 +75,6 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
   policy.store(results, idx);
 }
 
-}}  // namespace at::native
-
-// Note:
-// CUDA and ROCm get diverged in this PR:
-//   https://github.com/pytorch/pytorch/pull/32383
-// Because for some reason trying to enable vectorized
-// memory access introduce regression on ROCm.
-
-// Marks a lambda as executable on both the host and device. The __host__
-// attribute is important so that we can access static type information from
-// the host, even if the function is typically only executed on the device.
 #ifndef GPU_LAMBDA
 #define GPU_LAMBDA __host__ __device__
 #endif
@@ -96,10 +86,6 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
 #else
 #define ASSERT_HOST_DEVICE_LAMBDA(type)
 #endif
-
-namespace at { namespace native {
-
-namespace { // functions for `gpu_kernel_multiple_outputs`.
 
 // check the return type is `thrust::tuple`, not `std::tuple`.
 template <typename T> struct is_tuple: std::false_type {};
@@ -121,7 +107,6 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
-} // namespace
 
 template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
@@ -158,5 +143,3 @@ void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
     launch_unrolled_kernel_for_multi_outputs<num_outputs>(numel, f, data, input_calc, output_calc);
   }
 }
-
-}} //namespace at::native
