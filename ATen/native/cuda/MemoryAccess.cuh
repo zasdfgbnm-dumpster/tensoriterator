@@ -41,7 +41,7 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
   __device__ inline void load(std::tuple<float, float> *args, int idx) {
     int thread_idx = threadIdx.x;
     #pragma unroll
-    for (int i = 0; i < thread_work_size; i++) {
+    for (int i = 0; i < 1; i++) {
       if (thread_idx >= remaining) {
         return;
       }
@@ -55,7 +55,7 @@ struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
   __device__ inline void store(thrust::tuple<float, float> *from, int idx) {
     int thread_idx = threadIdx.x;
     #pragma unroll
-    for (int i = 0; i < thread_work_size; i++) {
+    for (int i = 0; i < 1; i++) {
       if (thread_idx >= this->remaining) {
         return;
       }

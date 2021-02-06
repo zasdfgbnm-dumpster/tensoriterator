@@ -5,11 +5,9 @@
 #include <iostream>
 
 #define NUM_THREADS (C10_WARP_SIZE * 2)
-#define THREAD_WORK_SIZE 4
-#define BLOCK_WORK_SIZE (THREAD_WORK_SIZE * num_threads)
+#define BLOCK_WORK_SIZE NUM_THREADS
 
 constexpr int num_threads = NUM_THREADS;
-constexpr int thread_work_size = THREAD_WORK_SIZE;
 constexpr int block_work_size = BLOCK_WORK_SIZE;
 
 #include <ATen/native/TensorIterator.h>
@@ -58,18 +56,15 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 
   int idx = blockIdx.x;
 
-  return_t results[thread_work_size];
-  args_t args[thread_work_size];
+  return_t results[1];
+  args_t args[1];
 
   // load
   policy.load(args, idx);
 
   // compute
-  #pragma unroll
-  for (int i = 0; i < thread_work_size; i++) {
-    if (policy.check_inbounds(i)) {
-      results[i] = f(std::get<0>(args[i]), std::get<1>(args[i]));
-    }
+  if (policy.check_inbounds(0)) {
+    results[0] = f(std::get<0>(args[0]), std::get<1>(args[0]));
   }
 
   // store
@@ -87,10 +82,6 @@ static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const fun
 
 template <typename func_t>
 void gpu_kernel_multiple_outputs(TensorIteratorBase& iter, const func_t& f) {
-  if (iter.numel() == 0) {
-    return;
-  }
-
   using output_t = thrust::tuple<float, float>;
   constexpr int num_outputs = 2;
   constexpr int num_inputs = 2;
