@@ -83,10 +83,19 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
 // Because for some reason trying to enable vectorized
 // memory access introduce regression on ROCm.
 
-#ifndef __HIP_PLATFORM_HCC__
-#include <ATen/native/cuda/CUDALoops.cuh>
+// Marks a lambda as executable on both the host and device. The __host__
+// attribute is important so that we can access static type information from
+// the host, even if the function is typically only executed on the device.
+#ifndef GPU_LAMBDA
+#define GPU_LAMBDA __host__ __device__
+#endif
+
+#ifdef __NVCC__
+#define ASSERT_HOST_DEVICE_LAMBDA(type) \
+  static_assert(__nv_is_extended_host_device_lambda_closure_type(type), \
+                #type " must be a __host__ __device__ lambda")
 #else
-#include <ATen/native/cuda/ROCmLoops.cuh>
+#define ASSERT_HOST_DEVICE_LAMBDA(type)
 #endif
 
 namespace at { namespace native {
