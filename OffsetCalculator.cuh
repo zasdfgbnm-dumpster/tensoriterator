@@ -30,5 +30,5 @@ struct OffsetCalculator {
   }
 
   int dims;
-  index_t strides_[MAX_DIMS][2];
+  int whatever[MAX_DIMS * 2];
 };
