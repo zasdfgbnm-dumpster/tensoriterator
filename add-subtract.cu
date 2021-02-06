@@ -51,7 +51,6 @@ struct C : B<out_calc_t, Useless> {
 };
 
 template <typename func_t, typename array_t, typename out_calc_t>
-C10_LAUNCH_BOUNDS_1(1)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
@@ -79,7 +78,6 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 
 template <typename func_t, typename array_t, typename out_calc_t>
 static inline void launch_unrolled_kernel_for_multi_outputs(int64_t N, const func_t& f, array_t data, out_calc_t oc) {
-  TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   unrolled_elementwise_kernel_for_multi_outputs<func_t, array_t><<<N, 1, 0>>>(N, f, data, oc);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
