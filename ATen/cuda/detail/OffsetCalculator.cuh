@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <iostream>
 #include <c10/macros/Macros.h>
 #include <ATen/core/Array.h>
 #include <ATen/native/TensorIterator.h>
