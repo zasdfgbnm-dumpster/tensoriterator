@@ -20,9 +20,9 @@ struct unroll {
   __device__ unroll(out_calc_t oc, loader_t l): output_offset_calculator(oc) {}
 };
 
-template <typename data_t, typename out_calc_t>
+template <typename out_calc_t>
 struct multi_outputs_unroll : unroll<out_calc_t, LoadWithoutCast> {
-  __device__ multi_outputs_unroll(data_t data, out_calc_t oc):
+  __device__ multi_outputs_unroll( out_calc_t oc):
     unroll<out_calc_t, LoadWithoutCast>(oc, LoadWithoutCast()) {}
 
   __device__ inline offset_t offsets(int linear_idx) {

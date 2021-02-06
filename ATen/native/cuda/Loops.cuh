@@ -43,7 +43,7 @@ template <typename func_t, typename array_t, typename out_calc_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
   int remaining = N - block_work_size * blockIdx.x;
-  auto policy = memory::policies::multi_outputs_unroll<array_t, out_calc_t>(data, oc);
+  auto policy = memory::policies::multi_outputs_unroll<out_calc_t>(oc);
 
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
@@ -66,6 +66,7 @@ __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, a
 
   // store
   auto offsets = policy.offsets(linear_idx);
+  // offset_t offsets = oc.get(linear_idx);
   *(reinterpret_cast<float *>(data[0]) + offsets[0]) = thrust::get<0>(results);
   *(reinterpret_cast<float *>(data[1]) + offsets[1]) = thrust::get<1>(results);
 }
