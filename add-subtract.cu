@@ -21,7 +21,7 @@ struct derived : base<type, useless> {
 };
 
 struct echo {
-  echo(): n(3) {}
+  echo() {}
 
   __device__ int get(int i) const {
     // this function just returns i
@@ -35,8 +35,8 @@ struct echo {
     return x;
   }
 
-  int n;
-  int whatever[50];
+  int n = 3;
+  int whatever[50];  // the size of this array must be large enough
 };
 
 
