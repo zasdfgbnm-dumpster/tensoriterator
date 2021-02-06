@@ -65,7 +65,7 @@ __device__ inline void elementwise_kernel_helper(func_t f, policy_t policy) {
   #pragma unroll
   for (int i = 0; i < thread_work_size; i++) {
     if (policy.check_inbounds(i)) {
-      results[i] = c10::guts::apply(f, args[i]);
+      results[i] = f(std::get<0>(args[i]), std::get<1>(args[i]));
     }
   }
 
