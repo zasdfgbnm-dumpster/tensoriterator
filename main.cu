@@ -6,10 +6,14 @@ std::vector<int64_t> shape = {
 };
 std::vector<std::vector<int64_t>> strides = {
   // warning: strides are in bytes!
-  {4, 8, 24},
-  {4, 8, 24},
-  {4, 8, 24},
-  {4, 8, 24},
+  // {4, 8, 24},
+  // {4, 8, 24},
+  // {4, 8, 24},
+  // {4, 8, 24},
+  {1, 2, 6},
+  {1, 2, 6},
+  {1, 2, 6},
+  {1, 2, 6},
 };
 std::vector<at::ScalarType> dtypes = {
   at::ScalarType::Float,
