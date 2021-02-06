@@ -9,15 +9,15 @@ __managed__ float data[N];
 struct useless {};
 
 template<typename type, typename whatever>
-struct container_base {
+struct base {
   type object;
-  __device__ container_base(type obj, whatever unused): object(obj) {}
+  __device__ base(type obj, whatever unused): object(obj) {}
 };
 
 template <typename type>
-struct container_derived : container_base<type, useless> {
-  __device__ container_derived(type obj):
-    container_base<type, useless>(obj, useless()) {}
+struct derived : base<type, useless> {
+  __device__ derived(type obj):
+    base<type, useless>(obj, useless()) {}
 };
 
 struct echo {
@@ -42,7 +42,7 @@ struct echo {
 
 __global__ void range_kernel(float *data, echo obj) {
 #ifdef BUG
-  auto container = container_derived<echo>(obj);
+  auto container = derived<echo>(obj);
   int offsets = container.object.get(blockIdx.x);
 #else
   int offsets = obj.get(blockIdx.x);
