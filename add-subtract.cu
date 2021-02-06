@@ -1,8 +1,11 @@
-#include <helper.cuh>
 #include <iostream>
 
-int64_t N = 5;
+constexpr int64_t N = 5;
 constexpr int MAX_DIMS = 25;
+__managed__ float data[N];
+
+
+#define CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) throw std::runtime_error(cudaGetErrorString(code)); } while(0)
 
 struct useless {};
 
@@ -52,10 +55,12 @@ __global__ void range_kernel(float *data, out_calc_t oc) {
 }
 
 int main() {
-  float *data = zeros<float>(N);
   auto oc = OffsetCalculator();
   range_kernel<<<N, 1>>>(data, oc);
-  C10_CUDA_KERNEL_LAUNCH_CHECK();
   cudaDeviceSynchronize();
-  print(data, N);
+  CHECK();
+  for (int64_t i = 0; i < N; i++) {
+    std::cout << data[i] << ", ";
+  }
+  std::cout << std::endl;
 }
