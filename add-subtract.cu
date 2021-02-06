@@ -25,8 +25,8 @@ struct echo {
 struct useless {};
 
 struct base {
-  echo object;
-  __device__ base(echo obj, useless unused): object(obj) {}
+  echo obj;
+  __device__ base(echo obj, useless unused): obj(obj) {}
 };
 
 struct derived : base {
@@ -37,7 +37,7 @@ struct derived : base {
 
 __global__ void range_kernel(float *data, echo obj) {
 #ifdef BUG
-  int offsets = derived(obj).object.get(blockIdx.x);
+  int offsets = derived(obj).obj.get(blockIdx.x);
 #else
   int offsets = obj.get(blockIdx.x);
 #endif
