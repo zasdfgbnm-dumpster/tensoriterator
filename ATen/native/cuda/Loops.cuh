@@ -29,18 +29,18 @@ static OffsetCalculator make_output_offset_calculator(const TensorIteratorBase& 
 
 
 template<typename out_calc_t, typename A>
-struct unroll {
+struct B {
   out_calc_t output_offset_calculator;
 
-  __device__ unroll(out_calc_t oc, A unused): output_offset_calculator(oc) {}
+  __device__ B(out_calc_t oc, A unused): output_offset_calculator(oc) {}
 };
 
 struct A {};
 
 template <typename out_calc_t>
-struct multi_outputs_unroll : unroll<out_calc_t, A> {
-  __device__ multi_outputs_unroll( out_calc_t oc):
-    unroll<out_calc_t, A>(oc, A()) {}
+struct C : B<out_calc_t, A> {
+  __device__ C( out_calc_t oc):
+    B<out_calc_t, A>(oc, A()) {}
 
   __device__ inline offset_t offsets(int linear_idx) {
     return this->output_offset_calculator.get(linear_idx);
@@ -51,7 +51,7 @@ template <typename func_t, typename array_t, typename out_calc_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(int N, func_t f, array_t data, out_calc_t oc) {
   int remaining = N - block_work_size * blockIdx.x;
-  auto policy = multi_outputs_unroll<out_calc_t>(oc);
+  auto policy = C<out_calc_t>(oc);
 
   using return_t = thrust::tuple<float, float>;
   using args_t = std::tuple<float, float>;
