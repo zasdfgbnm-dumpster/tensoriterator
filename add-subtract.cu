@@ -20,13 +20,13 @@ struct container_derived : container_base<type, useless> {
     container_base<type, useless>(obj, useless()) {}
 };
 
-struct OffsetCalculator {
-  OffsetCalculator(): dims(3) {}
+struct echo {
+  echo(): dims(3) {}
 
   __device__ int get(int i) const {
     int x = 0;
 
-    if (dims == 0) {
+    if (n == 0) {
       return x;
     }
     x = i;
@@ -34,7 +34,7 @@ struct OffsetCalculator {
     return x;
   }
 
-  int dims;
+  int n;
   int whatever[50];
 };
 
