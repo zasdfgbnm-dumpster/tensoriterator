@@ -1,10 +1,5 @@
 #include <iostream>
 
-constexpr int64_t N = 5;
-__managed__ float data[N];
-
-#define CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) throw std::runtime_error(cudaGetErrorString(code)); } while(0)
-
 struct bug {
   int zero = 0;
   int large_unused[50];
@@ -39,5 +34,4 @@ __global__ void kernel(bug obj) {
 int main() {
   kernel<<<1, 1>>>(bug());
   cudaDeviceSynchronize();
-  CHECK();
 }
