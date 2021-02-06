@@ -49,7 +49,7 @@ struct C : B<out_calc_t, Useless> {
   }
 };
 
-template <typename func_t, typename array_t, typename out_calc_t>
+template <typename array_t, typename out_calc_t>
 __global__ void unrolled_elementwise_kernel_for_multi_outputs(array_t data, out_calc_t oc) {
   thrust::tuple<float, float> results;
 #ifdef BUG
