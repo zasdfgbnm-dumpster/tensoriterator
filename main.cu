@@ -20,7 +20,7 @@ std::vector<at::ScalarType> dtypes = {
 std::vector<char *> data_ptrs = {
   nullptr, nullptr, nullptr, nullptr
 };
-bool is_contiguous = true;
+bool is_contiguous = false;
 int64_t noutputs = 2;
 
 using namespace at;
@@ -33,6 +33,7 @@ int main() {
   data_ptrs[3] = (char *)arange<float>(30);
   print((float *)data_ptrs[2], 30);
   print((float *)data_ptrs[3], 30);
+  cudaDeviceSynchronize();
   TensorIteratorBase iter;  // uses the hardcoded globals above
   gpu_kernel_multiple_outputs(iter, [] GPU_LAMBDA (float a, float b) {
     return thrust::tuple<float, float>(a + b, a - b);

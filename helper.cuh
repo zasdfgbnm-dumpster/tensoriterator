@@ -40,6 +40,7 @@ void print(T *data, int64_t size) {
   int64_t size_ = size * sizeof(T);
   cudaDeviceSynchronize();
   cudaMemcpy(buf, data, size_, cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
   for (int64_t i = 0; i < size; i++) {
     std::cout << buf[i] << ", ";
   }

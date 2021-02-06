@@ -32,3 +32,5 @@
 *.app
 
 /test
+*.qdrep
+*.sqlite
