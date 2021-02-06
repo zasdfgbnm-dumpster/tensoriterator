@@ -10,7 +10,7 @@ void print_array(T *buf, int64_t size) {
 
 template <typename T>
 void echo_arange(int64_t size) {
-  int64_t size_ = size * sizeof(T);
+  int64_t bytes = size * sizeof(T);
 
   // set
   T *buf = new T[size];
@@ -19,16 +19,16 @@ void echo_arange(int64_t size) {
   }
   print_array(buf, size);
   T *dev;
-  cudaMalloc(&dev, size_);
+  cudaMalloc(&dev, bytes);
   cudaDeviceSynchronize();
-  cudaMemcpy(dev, buf, size_, cudaMemcpyDefault);
+  cudaMemcpy(dev, buf, bytes, cudaMemcpyDefault);
   cudaDeviceSynchronize();
   delete [] buf;
 
   // print
   buf = new T[size];
   cudaDeviceSynchronize();
-  cudaMemcpy(buf, dev, size_, cudaMemcpyDefault);
+  cudaMemcpy(buf, dev, bytes, cudaMemcpyDefault);
   cudaDeviceSynchronize();
   print_array(buf, size);
   delete [] buf;
