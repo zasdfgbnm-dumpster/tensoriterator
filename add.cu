@@ -1,6 +1,8 @@
 #include <ATen/native/cuda/Loops.cuh>
 #include <helper.cuh>
 
+#include <cuda_runtime.h>
+
 std::vector<int64_t> shape = {
   2, 3, 5
 };
@@ -28,12 +30,32 @@ int main() {
   data_ptrs[0] = (char *)zeros<float>(30);
   data_ptrs[1] = (char *)arange<float>(30);
   data_ptrs[2] = (char *)arange<float>(30);
-  print((float *)data_ptrs[1], 30);
-  print((float *)data_ptrs[2], 30);
+  // print((float *)data_ptrs[1], 30);
+  // print((float *)data_ptrs[2], 30);
   cudaDeviceSynchronize();
   TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel(iter, [] GPU_LAMBDA (float a, float b) {
-    return a + b;
-  });
-  print((float *)data_ptrs[0], 30);
+
+  int niter = 1000;
+  cudaEvent_t start, end;
+  cudaEventCreate(&start);
+  cudaEventCreate(&end);
+
+  cudaEventRecord(start);
+
+  for (int i = 0; i < niter; i++) {
+    gpu_kernel(iter, [] GPU_LAMBDA (float a, float b) {
+      return a + b;
+    });
+  }
+
+  cudaEventRecord(end);
+  cudaEventSynchronize(end);
+
+  float tsf = 0;
+  cudaEventElapsedTime(&tsf, start, end);
+
+  printf("add\n"
+         "time cost %.3e ms\n", tsf / niter);
+
+  // print((float *)data_ptrs[0], 30);
 }
