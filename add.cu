@@ -2,6 +2,7 @@
 #include <helper.cuh>
 
 #include <cuda_runtime.h>
+#include <cuda_profiler_api.h>
 
 std::vector<int64_t> shape = {
   2, 3, 5
@@ -36,11 +37,8 @@ int main() {
   TensorIteratorBase iter;  // uses the hardcoded globals above
 
   int niter = 1000;
-  cudaEvent_t start, end;
-  cudaEventCreate(&start);
-  cudaEventCreate(&end);
 
-  cudaEventRecord(start);
+  cudaProfilerStart();
 
   for (int i = 0; i < niter; i++) {
     gpu_kernel(iter, [] GPU_LAMBDA (int a, float b) {
@@ -48,14 +46,7 @@ int main() {
     });
   }
 
-  cudaEventRecord(end);
-  cudaEventSynchronize(end);
-
-  float tsf = 0;
-  cudaEventElapsedTime(&tsf, start, end);
-
-  printf("add\n"
-         "time cost %.3e ms\n", tsf / niter);
+  cudaProfilerStop();
 
   print((float *)data_ptrs[0], 30);
 }
