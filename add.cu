@@ -41,7 +41,7 @@ int main() {
   cudaProfilerStart();
 
   for (int i = 0; i < niter; i++) {
-    gpu_kernel(iter, [] GPU_LAMBDA (int a, float b) {
+    gpu_kernel(iter, [] GPU_LAMBDA (float a, float b) {
       return a + b;
     });
   }
