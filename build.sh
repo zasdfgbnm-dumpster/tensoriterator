@@ -4,4 +4,4 @@ nvcc add-subtract.cu -o add-subtract -I. -std=c++14 --extended-lambda --expt-rel
 echo ""
 ./add-subtract
 echo ""
-rm -rf add add-subtract
+# rm -rf add add-subtract

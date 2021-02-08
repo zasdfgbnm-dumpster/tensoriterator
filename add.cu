@@ -14,7 +14,7 @@ std::vector<std::vector<int64_t>> strides = {
 };
 std::vector<at::ScalarType> dtypes = {
   at::ScalarType::Float,
-  at::ScalarType::Float,
+  at::ScalarType::Int,
   at::ScalarType::Float,
 };
 std::vector<char *> data_ptrs = {
@@ -28,10 +28,10 @@ using namespace at::native;
 
 int main() {
   data_ptrs[0] = (char *)zeros<float>(30);
-  data_ptrs[1] = (char *)arange<float>(30);
+  data_ptrs[1] = (char *)arange<int>(30);
   data_ptrs[2] = (char *)arange<float>(30);
-  // print((float *)data_ptrs[1], 30);
-  // print((float *)data_ptrs[2], 30);
+  print((int *)data_ptrs[1], 30);
+  print((float *)data_ptrs[2], 30);
   cudaDeviceSynchronize();
   TensorIteratorBase iter;  // uses the hardcoded globals above
 
@@ -57,5 +57,5 @@ int main() {
   printf("add\n"
          "time cost %.3e ms\n", tsf / niter);
 
-  // print((float *)data_ptrs[0], 30);
+  print((float *)data_ptrs[0], 30);
 }
