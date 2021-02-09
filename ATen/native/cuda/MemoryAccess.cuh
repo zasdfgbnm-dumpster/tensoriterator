@@ -93,7 +93,9 @@ struct multi_outputs_store_helper {
 struct LoadWithoutCast {
   template<typename scalar_t>
   __device__ scalar_t load(char *base_ptr, uint32_t offset, int arg) {
-    return *(reinterpret_cast<scalar_t *>(base_ptr) + offset);
+    auto addr = reinterpret_cast<uint64_t>(base_ptr);
+    printf("address: %llu, mod: %llu\n", addr, addr % 16);
+    return 0;
   }
 };
 
