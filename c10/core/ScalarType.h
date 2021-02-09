@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <c10/macros/Macros.h>
+#include <c10/util/complex.h>
 
 namespace c10 {
 
@@ -15,6 +17,7 @@ namespace c10 {
   _(int64_t, Long)       /* 4 */                                               \
   _(float, Float)        /* 6 */                                               \
   _(double, Double)      /* 7 */                                               \
+  _(c10::complex<double>, ComplexDouble)                                       \
   _(bool, Bool)
 
 #define AT_FORALL_SCALAR_TYPES(_)                                              \
