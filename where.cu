@@ -36,9 +36,7 @@ int main() {
   print((c10::complex<double> *)data_ptrs[3], 1);
   cudaDeviceSynchronize();
   TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel(iter, [] GPU_LAMBDA (bool cond, c10::complex<double> a, c10::complex<double> b) {
-    return cond ? a : b;
-  });
+  gpu_kernel(iter);
   cudaDeviceSynchronize();
   print((c10::complex<double> *)data_ptrs[0], 30);
 }

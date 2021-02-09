@@ -65,9 +65,21 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
 
 namespace at { namespace native {
 
-template <typename func_t>
-void gpu_kernel(TensorIteratorBase& iter, const func_t& f) {
-  gpu_kernel_impl(iter, f);
+void gpu_kernel(TensorIteratorBase& iter) {
+  constexpr int ntensors = 4;
+
+  at::detail::Array<char*, ntensors> data;
+  for (int i = 0; i < ntensors; i++) {
+    data[i] = nullptr;
+  }
+
+  int64_t numel = iter.numel();
+
+  auto input_offset_calculator = make_input_offset_calculator<3>(iter);
+  auto output_offset_calculator = make_output_offset_calculator(iter);
+  auto loader = memory::LoadWithoutCast();
+  auto storer = memory::StoreWithoutCast();
+  launch_unrolled_kernel(numel, data, input_offset_calculator, output_offset_calculator, loader, storer);
 }
 
 }} //namespace at::native
