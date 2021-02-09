@@ -81,19 +81,12 @@ void gpu_kernel_impl(TensorIteratorBase& iter, const func_t& f) {
   using arg0_t = typename traits::result_type;
   constexpr int ntensors = traits::arity + 1;
 
-  TORCH_INTERNAL_ASSERT(iter.can_use_32bit_indexing());
-  TORCH_INTERNAL_ASSERT(iter.ninputs() == traits::arity);
-  TORCH_INTERNAL_ASSERT(iter.noutputs() == 1);
-
   at::detail::Array<char*, ntensors> data;
   for (int i = 0; i < ntensors; i++) {
-    data[i] = (char*)iter.data_ptr(i);
+    data[i] = nullptr;
   }
 
   int64_t numel = iter.numel();
-
-  bool contiguous = iter.is_contiguous();
-  bool dynamic_casting = needs_dynamic_casting<func_t>::check(iter);
 
   auto input_offset_calculator = make_input_offset_calculator<traits::arity>(iter);
   auto output_offset_calculator = make_output_offset_calculator(iter);
