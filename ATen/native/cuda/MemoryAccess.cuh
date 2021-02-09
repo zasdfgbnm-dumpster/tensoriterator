@@ -52,19 +52,6 @@ struct static_unroll<func, end, end> {
 // one by one
 
 template<int arg_index>
-struct vectorized_load_helper {
-  template <typename args_t, typename policy_t>
-  static __device__ void apply(policy_t &self, args_t *args, int idx) {
-    using arg_t = std::tuple_element_t<arg_index, args_t>;
-    // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
-    // need a +1 offset to get the input
-    auto ptr = reinterpret_cast<arg_t *>(self.data[arg_index + 1]) + block_work_size * idx;
-    auto args_accessor = [&args] __device__ (int thread_unroll_idx) -> arg_t & { return std::get<arg_index>(args[thread_unroll_idx]); };
-    self.load_single_arg(args_accessor, ptr);
-  }
-};
-
-template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t, typename policy_t, typename offset_t, typename loader_t>
   static __device__ void apply(policy_t &self, args_t *args, offset_t offset, loader_t loader, int j, int num_outputs) {
@@ -72,19 +59,6 @@ struct unroll_load_helper {
     // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
     // need a +1 offset to get the input
     std::get<arg_index>(args[j]) = loader.template load<arg_t>(self.data[arg_index + num_outputs], offset[arg_index], arg_index);
-  }
-};
-
-template <int current>
-struct multi_outputs_store_helper {
-  template<int ntensors, int num_outputs, typename ...Args>
-  C10_HOST_DEVICE static void apply(
-      at::detail::Array<char*, ntensors> data,
-      at::detail::Array<uint32_t, num_outputs> offsets,
-      thrust::tuple<Args...> ret) {
-    using T = typename thrust::tuple_element<current, thrust::tuple<Args...>>::type;
-    T *to = reinterpret_cast<T *>(data[current]) + offsets[current];
-    *to = thrust::get<current>(ret);
   }
 };
 

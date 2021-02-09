@@ -49,10 +49,6 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
   return OffsetCalculator<num_outputs>(iter.ndim(), iter.shape().data(), strides.data(), element_sizes);
 }
 
-template<typename policy_t>
-__device__ inline void elementwise_kernel_helper(policy_t policy) {
-}
-
 }}  // namespace at::native
 
 // Note:
