@@ -55,26 +55,6 @@
 
 namespace at { namespace native {
 
-template<int vec_size, typename func_t, typename array_t>
-C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void vectorized_elementwise_kernel(int N, func_t f, array_t data) {
-  using traits = function_traits<func_t>;
-  int remaining = N - block_work_size * blockIdx.x;
-
-  if (remaining < block_work_size) {  // if this block handles the reminder, just do a naive unrolled loop
-    auto input_calc = TrivialOffsetCalculator<traits::arity>();
-    auto output_calc = TrivialOffsetCalculator<1>();
-    auto loader = memory::LoadWithoutCast();
-    auto storer = memory::StoreWithoutCast();
-    auto policy = memory::policies::unroll<array_t, decltype(input_calc), decltype(output_calc),
-                                           memory::LoadWithoutCast, memory::StoreWithoutCast>(
-      data, remaining, input_calc, output_calc, loader, storer);
-    elementwise_kernel_helper(f, policy);
-  } else {  // if this block has a full `block_work_size` data to handle, use vectorized memory access
-    elementwise_kernel_helper(f, memory::policies::vectorized<vec_size, array_t>(data));
-  }
-}
-
 template<typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t, typename loader_t, typename storer_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
 __global__ void unrolled_elementwise_kernel(int N, func_t f, array_t data,
@@ -82,38 +62,7 @@ __global__ void unrolled_elementwise_kernel(int N, func_t f, array_t data,
 {
   int remaining = N - block_work_size * blockIdx.x;
   auto policy = memory::policies::unroll<array_t, inp_calc_t, out_calc_t, loader_t, storer_t>(data, remaining, ic, oc, l, s);
-  elementwise_kernel_helper(f, policy);
-}
-
-// this function assume trivial 1d and no dynamic casting
-template<typename func_t, typename array_t>
-static inline void launch_vectorized_kernel(int64_t N, const func_t& f, array_t data) {
-  TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
-  using traits = function_traits<func_t>;
-  int64_t grid = (N + block_work_size - 1) / block_work_size;
-  int vec_size = memory::can_vectorize_up_to<func_t>(data);
-
-  switch (vec_size) {
-  case 4:
-    vectorized_elementwise_kernel<4, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data);
-    C10_CUDA_KERNEL_LAUNCH_CHECK();
-    break;
-  case 2:
-    vectorized_elementwise_kernel<2, func_t, array_t><<<grid, num_threads, 0>>>(N, f, data);
-    C10_CUDA_KERNEL_LAUNCH_CHECK();
-    break;
-  case 1: {
-    auto input_calc = TrivialOffsetCalculator<traits::arity>();
-    auto output_calc = TrivialOffsetCalculator<1>();
-    auto loader = memory::LoadWithoutCast();
-    auto storer = memory::StoreWithoutCast();
-    unrolled_elementwise_kernel<func_t, array_t><<<grid, num_threads, 0>>>(N, f, data, input_calc, output_calc, loader, storer);
-    C10_CUDA_KERNEL_LAUNCH_CHECK();
-    break;
-  }
-  default:
-    TORCH_INTERNAL_ASSERT(false, "Unexpected vectorization size");
-  }
+  elementwise_kernel_helper(policy);
 }
 
 template<typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t, typename loader_t, typename storer_t>
@@ -146,33 +95,11 @@ void gpu_kernel_impl(TensorIteratorBase& iter, const func_t& f) {
   bool contiguous = iter.is_contiguous();
   bool dynamic_casting = needs_dynamic_casting<func_t>::check(iter);
 
-  if (!dynamic_casting) {
-    if (contiguous) {
-      launch_vectorized_kernel(numel, f, data);
-    } else {
-      auto input_offset_calculator = make_input_offset_calculator<traits::arity>(iter);
-      auto output_offset_calculator = make_output_offset_calculator(iter);
-      auto loader = memory::LoadWithoutCast();
-      auto storer = memory::StoreWithoutCast();
-      launch_unrolled_kernel(numel, f, data, input_offset_calculator, output_offset_calculator, loader, storer);
-    }
-  } else {
-    at::detail::Array<ScalarType, traits::arity> dtypes;
-    for (int i = 0; i < traits::arity; i++) {
-      dtypes[i] = iter.dtype(i + 1);
-    }
-    auto loader = memory::LoadWithCast<traits::arity>(dtypes);
-    auto storer = memory::StoreWithCast(iter.dtype(0));
-    if (contiguous) {
-      auto input_offset_calculator = TrivialOffsetCalculator<traits::arity>();
-      auto output_offset_calculator = TrivialOffsetCalculator<1>();
-      launch_unrolled_kernel(numel, f, data, input_offset_calculator, output_offset_calculator, loader, storer);
-    } else {
-      auto input_offset_calculator = make_input_offset_calculator<traits::arity>(iter);
-      auto output_offset_calculator = make_output_offset_calculator(iter);
-      launch_unrolled_kernel(numel, f, data, input_offset_calculator, output_offset_calculator, loader, storer);
-    }
-  }
+  auto input_offset_calculator = make_input_offset_calculator<traits::arity>(iter);
+  auto output_offset_calculator = make_output_offset_calculator(iter);
+  auto loader = memory::LoadWithoutCast();
+  auto storer = memory::StoreWithoutCast();
+  launch_unrolled_kernel(numel, f, data, input_offset_calculator, output_offset_calculator, loader, storer);
 }
 
 }} // namespace at::native
