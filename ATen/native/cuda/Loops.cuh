@@ -51,31 +51,6 @@ static OffsetCalculator<num_outputs> make_output_offset_calculator(const TensorI
 
 template<typename policy_t>
 __device__ inline void elementwise_kernel_helper(policy_t policy) {
-  using return_t = c10::complex<double>;
-  using args_t = std::tuple<bool, c10::complex<double>, c10::complex<double>>;
-
-  int idx = blockIdx.x;
-
-  return_t results[thread_work_size];
-  args_t args[thread_work_size];
-
-  // load
-  policy.load(args, idx);
-
-  if (idx >= 0) {
-    return;
-  }
-
-  // compute
-  #pragma unroll
-  for (int i = 0; i < thread_work_size; i++) {
-    if (policy.check_inbounds(i)) {
-      results[i] = std::get<1>(args[i]);
-    }
-  }
-
-  // store
-  policy.store(results, idx);
 }
 
 }}  // namespace at::native

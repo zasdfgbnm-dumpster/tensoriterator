@@ -62,7 +62,32 @@ __global__ void unrolled_elementwise_kernel(int N, func_t f, array_t data,
 {
   int remaining = N - block_work_size * blockIdx.x;
   auto policy = memory::policies::unroll<array_t, inp_calc_t, out_calc_t, loader_t, storer_t>(data, remaining, ic, oc, l, s);
-  elementwise_kernel_helper(policy);
+  
+  using return_t = c10::complex<double>;
+  using args_t = std::tuple<bool, c10::complex<double>, c10::complex<double>>;
+
+  int idx = blockIdx.x;
+
+  return_t results[thread_work_size];
+  args_t args[thread_work_size];
+
+  // load
+  policy.load(args, idx);
+
+  if (idx >= 0) {
+    return;
+  }
+
+  // compute
+  #pragma unroll
+  for (int i = 0; i < thread_work_size; i++) {
+    if (policy.check_inbounds(i)) {
+      results[i] = std::get<1>(args[i]);
+    }
+  }
+
+  // store
+  policy.store(results, idx);
 }
 
 template<typename func_t, typename array_t, typename inp_calc_t, typename out_calc_t, typename loader_t, typename storer_t>
