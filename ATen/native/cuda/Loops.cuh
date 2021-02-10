@@ -77,9 +77,8 @@ void gpu_kernel(TensorIteratorBase& iter) {
 
   auto input_offset_calculator = make_input_offset_calculator<3>(iter);
   auto output_offset_calculator = make_output_offset_calculator(iter);
-  auto loader = memory::LoadWithoutCast();
   auto storer = memory::StoreWithoutCast();
-  launch_unrolled_kernel(numel, data, input_offset_calculator, output_offset_calculator, loader, storer);
+  launch_unrolled_kernel(numel, data, input_offset_calculator, output_offset_calculator, storer);
 }
 
 }} //namespace at::native
