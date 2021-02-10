@@ -7,7 +7,7 @@ constexpr int thread_work_size = 4;
 template<template<int i> typename func, int end, int current=0>
 struct static_unroll {
   template<typename... Args>
-  static inline C10_HOST_DEVICE void with_args(Args&&... args) {
+  static inline __host__ __device__ void with_args(Args&&... args) {
     func<current>::apply(std::forward<Args>(args)...);
     static_unroll<func, end, current+1>::with_args(args...);
   }
@@ -16,7 +16,7 @@ struct static_unroll {
 template<template<int i> typename func, int end>
 struct static_unroll<func, end, end> {
   template<typename... Args>
-  static inline C10_HOST_DEVICE void with_args(Args... args) {}
+  static inline __host__ __device__ void with_args(Args... args) {}
 };
 
 // helper structs to be used with static_unroll to load arguments
