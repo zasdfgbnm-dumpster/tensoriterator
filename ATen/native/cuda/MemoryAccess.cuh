@@ -73,10 +73,9 @@ namespace policies {
 template<typename data_t, int num_outputs = 1>
 struct unroll {
   data_t data;
-  int remaining;
 
-  __device__ unroll(data_t data, int remaining):
-    data(data), remaining(remaining) {}
+  __device__ unroll(data_t data):
+    data(data) {}
 
   template<typename args_t>
   __device__ inline void load(args_t *args, int idx) {
@@ -84,9 +83,6 @@ struct unroll {
     int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
-      if (thread_idx >= remaining) {
-        return;
-      }
       detail::static_unroll<detail::unroll_load_helper, arity>::with_args(*this, args, i, num_outputs);
       thread_idx += num_threads;
     }

@@ -58,8 +58,7 @@ namespace at { namespace native {
 C10_LAUNCH_BOUNDS_1(num_threads)
 __global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result, c10::complex<double> *data)
 {
-  int remaining = N - block_work_size * blockIdx.x;
-  auto policy = memory::policies::unroll<c10::complex<double> *>(data, remaining);
+  auto policy = memory::policies::unroll<c10::complex<double> *>(data);
   
   using return_t = c10::complex<double>;
   using args_t = std::tuple<bool, c10::complex<double>, c10::complex<double>>;
