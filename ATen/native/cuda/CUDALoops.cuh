@@ -55,13 +55,12 @@
 
 namespace at { namespace native {
 
-template<typename array_t, typename inp_calc_t, typename out_calc_t>
+template<typename array_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result, array_t data,
-                                            inp_calc_t ic, out_calc_t oc)
+__global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result, array_t data)
 {
   int remaining = N - block_work_size * blockIdx.x;
-  auto policy = memory::policies::unroll<array_t, inp_calc_t, out_calc_t>(data, remaining, ic, oc);
+  auto policy = memory::policies::unroll<array_t>(data, remaining);
   
   using return_t = c10::complex<double>;
   using args_t = std::tuple<bool, c10::complex<double>, c10::complex<double>>;
@@ -95,13 +94,12 @@ __global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result,
   }
 }
 
-template<typename array_t, typename inp_calc_t, typename out_calc_t>
-static inline void launch_unrolled_kernel(int64_t N, array_t data,
-                                          inp_calc_t ic, out_calc_t oc)
+template<typename array_t>
+static inline void launch_unrolled_kernel(int64_t N, array_t data)
 {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = (N + block_work_size - 1) / block_work_size;
-  unrolled_elementwise_kernel<array_t><<<grid, num_threads, 0>>>(N, nullptr, data, ic, oc);
+  unrolled_elementwise_kernel<array_t><<<grid, num_threads, 0>>>(N, nullptr, data);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 

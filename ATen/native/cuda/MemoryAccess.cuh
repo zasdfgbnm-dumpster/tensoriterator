@@ -70,16 +70,14 @@ namespace policies {
 
 // Assumption:
 // all tensors are contiguous, that is: stride == sizeof(type) for all tensors
-template<typename data_t, typename inp_calc_t, typename out_calc_t, int num_outputs = 1>
+template<typename data_t, int num_outputs = 1>
 struct unroll {
 
   data_t data;
   int remaining;
-  inp_calc_t input_offset_calculator;
-  out_calc_t output_offset_calculator;
 
-  __device__ unroll(data_t data, int remaining, inp_calc_t ic, out_calc_t oc):
-    data(data), remaining(remaining), input_offset_calculator(ic), output_offset_calculator(oc) {}
+  __device__ unroll(data_t data, int remaining):
+    data(data), remaining(remaining) {}
 
   __device__ inline bool check_inbounds(int thread_work_elem) {
     return ((threadIdx.x  + thread_work_elem*num_threads) < remaining);
