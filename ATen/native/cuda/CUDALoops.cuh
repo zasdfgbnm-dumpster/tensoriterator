@@ -86,7 +86,7 @@ template<typename array_t>
 static inline void launch_unrolled_kernel(int64_t N, array_t data)
 {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
-  int64_t grid = (N + block_work_size - 1) / block_work_size;
+  int64_t grid = 1;
   unrolled_elementwise_kernel<<<grid, num_threads, 0>>>(N, nullptr, nullptr);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
