@@ -32,13 +32,10 @@ struct unroll_load_helper {
 
 __global__ void unrolled_elementwise_kernel(A *result, A *data)
 {
-  using return_t = A;
-  using args_t = std::tuple<bool, A, A>;
-
   int idx = blockIdx.x;
 
-  return_t results[4];
-  args_t args[4];
+  A results[4];
+  std::tuple<bool, A, A> args[4];
 
   // load
   #pragma unroll
