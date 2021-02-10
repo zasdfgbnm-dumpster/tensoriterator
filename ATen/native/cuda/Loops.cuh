@@ -30,15 +30,7 @@ constexpr int block_work_size = BLOCK_WORK_SIZE;
 namespace at { namespace native {
 
 void gpu_kernel(TensorIteratorBase& iter) {
-  constexpr int ntensors = 4;
-
-  at::detail::Array<char*, ntensors> data;
-  for (int i = 0; i < ntensors; i++) {
-    data[i] = nullptr;
-  }
-
-  int64_t numel = iter.numel();
-  launch_unrolled_kernel(numel, nullptr);
+  launch_unrolled_kernel();
 }
 
 }} //namespace at::native

@@ -56,7 +56,7 @@
 namespace at { namespace native {
 
 C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result, c10::complex<double> *data)
+__global__ void unrolled_elementwise_kernel(c10::complex<double> *result, c10::complex<double> *data)
 {
   auto policy = memory::policies::unroll<c10::complex<double> *>(data);
   
@@ -82,12 +82,11 @@ __global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result,
   }
 }
 
-template<typename array_t>
-static inline void launch_unrolled_kernel(int64_t N, array_t data)
+static inline void launch_unrolled_kernel()
 {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = 1;
-  unrolled_elementwise_kernel<<<grid, num_threads, 0>>>(N, nullptr, nullptr);
+  unrolled_elementwise_kernel<<<grid, num_threads, 0>>>(nullptr, nullptr);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
