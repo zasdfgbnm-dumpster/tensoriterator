@@ -1,10 +1,55 @@
 constexpr int num_threads = 64;
 constexpr int thread_work_size = 4;
 
-#include <ATen/native/cuda/MemoryAccess.cuh>
+#include <iostream>
+#include <c10/macros/Macros.h>
 
-using namespace at;
-using namespace at::native;
+template<template<int i> typename func, int end, int current=0>
+struct static_unroll {
+  template<typename... Args>
+  static inline C10_HOST_DEVICE void with_args(Args&&... args) {
+    func<current>::apply(std::forward<Args>(args)...);
+    static_unroll<func, end, current+1>::with_args(args...);
+  }
+};
+
+template<template<int i> typename func, int end>
+struct static_unroll<func, end, end> {
+  template<typename... Args>
+  static inline C10_HOST_DEVICE void with_args(Args... args) {}
+};
+
+// helper structs to be used with static_unroll to load arguments
+// one by one
+
+template<int arg_index>
+struct unroll_load_helper {
+  template <typename args_t, typename policy_t>
+  static __device__ void apply(policy_t &self, args_t *args, int j) {
+    auto addr = reinterpret_cast<uint64_t>(self.data);
+    printf("address: %llu, mod: %llu\n", addr, addr % 16);
+    std::get<arg_index>(args[j]) = {};
+  }
+};
+
+// Assumption:
+// all tensors are contiguous, that is: stride == sizeof(type) for all tensors
+template<typename data_t, int num_outputs = 1>
+struct unroll {
+  data_t data;
+
+  __device__ unroll(data_t data):
+    data(data) {}
+
+  template<typename args_t>
+  __device__ inline void load(args_t *args, int idx) {
+    constexpr int arity = std::tuple_size<args_t>::value;
+    #pragma unroll
+    for (int i = 0; i < thread_work_size; i++) {
+      static_unroll<unroll_load_helper, arity>::with_args(*this, args, i);
+    }
+  }
+};
 
 struct alignas(16) A {
   double data[2];
@@ -12,7 +57,7 @@ struct alignas(16) A {
 
 __global__ void unrolled_elementwise_kernel(A *result, A *data)
 {
-  auto policy = memory::policies::unroll<A *>(data);
+  auto policy = unroll<A *>(data);
   
   using return_t = A;
   using args_t = std::tuple<bool, A, A>;
