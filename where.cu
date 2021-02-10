@@ -3,7 +3,6 @@
 
 #define C10_CUDA_KERNEL_LAUNCH_CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) {std::string e = cudaGetErrorString(code); std::cerr << e << std::endl; throw std::runtime_error(e);} } while(0)
 
-constexpr int num_threads = 64;
 constexpr int thread_work_size = 4;
 
 template<template<int i> typename func, int end, int current=0>
