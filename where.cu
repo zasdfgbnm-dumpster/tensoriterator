@@ -25,6 +25,7 @@ struct initialize_all {
 __global__ void unrolled_elementwise_kernel(A *result)
 {
   std::tuple<bool, A> args[2];
+
   #pragma unroll
   for (int i = 0; i < 2; i++) {
     initialize_all::with_args(args, i);
