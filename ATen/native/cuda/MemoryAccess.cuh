@@ -77,11 +77,9 @@ struct unroll {
   template<typename args_t>
   __device__ inline void load(args_t *args, int idx) {
     constexpr int arity = std::tuple_size<args_t>::value;
-    int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
       detail::static_unroll<detail::unroll_load_helper, arity>::with_args(*this, args, i);
-      thread_idx += num_threads;
     }
   }
 };
