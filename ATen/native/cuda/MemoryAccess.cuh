@@ -73,12 +73,6 @@ struct StoreWithoutCast {
   }
 };
 
-// aligned vector generates vectorized load/store on CUDA
-template<typename scalar_t, int vec_size>
-struct alignas(sizeof(scalar_t) * vec_size) aligned_vector {
-  scalar_t val[vec_size];
-};
-
 namespace policies {
 
 // Assumption:
@@ -111,22 +105,6 @@ struct unroll {
       int linear_idx = thread_idx + block_work_size * idx;
       auto offset = input_offset_calculator.get(linear_idx);
       detail::static_unroll<detail::unroll_load_helper, arity>::with_args(*this, args, offset, i, num_outputs);
-      thread_idx += num_threads;
-    }
-  }
-
-  template<typename scalar_t>
-  __device__ inline void store(scalar_t *from, int idx) {
-    int thread_idx = threadIdx.x;
-    scalar_t *to = reinterpret_cast<scalar_t *>(data[0]) + block_work_size * idx;
-    #pragma unroll
-    for (int i = 0; i < thread_work_size; i++) {
-      if (thread_idx >= remaining) {
-        return;
-      }
-      int linear_idx = thread_idx + block_work_size * idx;
-      int offset = output_offset_calculator.get(linear_idx)[0];
-      storer.store(from[i], data[0], offset);
       thread_idx += num_threads;
     }
   }
