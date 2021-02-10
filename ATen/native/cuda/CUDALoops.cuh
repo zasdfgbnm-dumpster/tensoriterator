@@ -77,20 +77,10 @@ __global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result,
     return;
   }
 
-  // compute
   #pragma unroll
   for (int i = 0; i < thread_work_size; i++) {
-    if (policy.check_inbounds(i)) {
-      results[i] = std::get<1>(args[i]);
-    }
-  }
-
-  // store
-  #pragma unroll
-  for (int i = 0; i < thread_work_size; i++) {
-    if (policy.check_inbounds(i)) {
-      *result = results[i];
-    }
+    results[i] = std::get<1>(args[i]);
+    *result = results[i];
   }
 }
 
