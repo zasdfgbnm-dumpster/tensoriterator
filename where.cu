@@ -1,8 +1,6 @@
 #include <iostream>
 #include <tuple>
 
-constexpr int thread_work_size = 4;
-
 struct alignas(16) A {
   double data[2];
 };
@@ -36,7 +34,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
 
   // load
   #pragma unroll
-  for (int i = 0; i < thread_work_size; i++) {
+  for (int i = 0; i < 4; i++) {
     static_unroll<unroll_load_helper>::with_args(args, i);
   }
 
