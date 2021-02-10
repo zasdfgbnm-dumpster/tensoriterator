@@ -29,11 +29,11 @@ struct unroll_load_helper {
 
 __global__ void unrolled_elementwise_kernel(A *result)
 {
-  std::tuple<bool, A> args[4];
+  std::tuple<bool, A> args[2];
 
   // load
   #pragma unroll
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 2; i++) {
     static_unroll<unroll_load_helper>::with_args(args, i);
   }
 
