@@ -54,4 +54,3 @@ constexpr uint32_t CUDA_THREADS_PER_BLOCK_FALLBACK = 256;
 #define TORCH_CHECK(...)
 #define AT_ASSERT(...)
 #define TORCH_INTERNAL_ASSERT(...)
-#define C10_CUDA_KERNEL_LAUNCH_CHECK() do { auto code = cudaGetLastError(); if(code != cudaSuccess) {std::string e = cudaGetErrorString(code); std::cerr << e << std::endl; throw std::runtime_error(e);} } while(0)
