@@ -21,7 +21,7 @@ template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t>
   static __device__ void apply(args_t *args, int j) {
-    printf("address: %llu, mod: %llu\n", 0, 0 % 16);
+    printf("%d%d\n", 0, 0);
     std::get<arg_index>(args[j]) = {};
   }
 };
