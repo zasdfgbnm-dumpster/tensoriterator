@@ -3,6 +3,10 @@
 
 constexpr int thread_work_size = 4;
 
+struct alignas(16) A {
+  double data[2];
+};
+
 template<template<int i> typename func, int end, int current=0>
 struct static_unroll {
   template<typename... Args>
@@ -33,7 +37,7 @@ struct unroll_load_helper {
 
 // Assumption:
 // all tensors are contiguous, that is: stride == sizeof(type) for all tensors
-template<typename data_t, int num_outputs = 1>
+template<typename data_t>
 struct unroll {
   data_t data;
 
@@ -48,10 +52,6 @@ struct unroll {
       static_unroll<unroll_load_helper, arity>::with_args(*this, args, i);
     }
   }
-};
-
-struct alignas(16) A {
-  double data[2];
 };
 
 __global__ void unrolled_elementwise_kernel(A *result, A *data)
