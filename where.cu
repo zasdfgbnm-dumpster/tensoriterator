@@ -22,8 +22,8 @@ struct static_unroll {
 
 template<int arg_index>
 struct unroll_load_helper {
-  template <typename args_t, typename policy_t>
-  static __device__ void apply(policy_t &self, args_t *args, int j) {
+  template <typename args_t>
+  static __device__ void apply(args_t *args, int j) {
     uint64_t addr = 0;
     printf("address: %llu, mod: %llu\n", addr, addr % 16);
     std::get<arg_index>(args[j]) = {};
@@ -44,7 +44,7 @@ struct unroll {
     constexpr int arity = std::tuple_size<args_t>::value;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
-      static_unroll<unroll_load_helper>::with_args(*this, args, i);
+      static_unroll<unroll_load_helper>::with_args(args, i);
     }
   }
 };
