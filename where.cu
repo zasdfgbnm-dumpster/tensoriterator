@@ -8,13 +8,17 @@ constexpr int block_work_size = num_threads * thread_work_size;
 using namespace at;
 using namespace at::native;
 
-C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel(c10::complex<double> *result, c10::complex<double> *data)
+struct alignas(16) A {
+  double data[2];
+};
+
+__launch_bounds__(num_threads)
+__global__ void unrolled_elementwise_kernel(A *result, A *data)
 {
-  auto policy = memory::policies::unroll<c10::complex<double> *>(data);
+  auto policy = memory::policies::unroll<A *>(data);
   
-  using return_t = c10::complex<double>;
-  using args_t = std::tuple<bool, c10::complex<double>, c10::complex<double>>;
+  using return_t = A;
+  using args_t = std::tuple<bool, A, A>;
 
   int idx = blockIdx.x;
 
