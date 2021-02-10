@@ -11,7 +11,6 @@ struct static_unroll {
   static inline __host__ __device__ void with_args(Args&&... args) {
     func<0>::apply(std::forward<Args>(args)...);
     func<1>::apply(std::forward<Args>(args)...);
-    func<2>::apply(std::forward<Args>(args)...);
   }
 };
 
@@ -30,7 +29,7 @@ struct unroll_load_helper {
 
 __global__ void unrolled_elementwise_kernel(A *result)
 {
-  std::tuple<bool, A, A> args[4];
+  std::tuple<bool, A> args[4];
 
   // load
   #pragma unroll
