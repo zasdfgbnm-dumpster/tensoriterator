@@ -57,7 +57,7 @@ namespace at { namespace native {
 
 template<typename array_t, typename inp_calc_t, typename out_calc_t, typename storer_t>
 C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel(int N, array_t data,
+__global__ void unrolled_elementwise_kernel(int N, c10::complex<double> *result, array_t data,
                                             inp_calc_t ic, out_calc_t oc, storer_t s)
 {
   int remaining = N - block_work_size * blockIdx.x;
@@ -87,7 +87,12 @@ __global__ void unrolled_elementwise_kernel(int N, array_t data,
   }
 
   // store
-  policy.store(results, idx);
+  #pragma unroll
+  for (int i = 0; i < thread_work_size; i++) {
+    if (policy.check_inbounds(i)) {
+      *result = results[i];
+    }
+  }
 }
 
 template<typename array_t, typename inp_calc_t, typename out_calc_t, typename storer_t>
@@ -96,7 +101,7 @@ static inline void launch_unrolled_kernel(int64_t N, array_t data,
 {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = (N + block_work_size - 1) / block_work_size;
-  unrolled_elementwise_kernel<array_t><<<grid, num_threads, 0>>>(N, data, ic, oc, s);
+  unrolled_elementwise_kernel<array_t><<<grid, num_threads, 0>>>(N, nullptr, data, ic, oc, s);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
