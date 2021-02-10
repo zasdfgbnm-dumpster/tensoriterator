@@ -54,10 +54,7 @@ struct static_unroll<func, end, end> {
 template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t, typename policy_t>
-  static __device__ void apply(policy_t &self, args_t *args, int j, int num_outputs) {
-    using arg_t = std::tuple_element_t<arg_index, args_t>;
-    // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
-    // need a +1 offset to get the input
+  static __device__ void apply(policy_t &self, args_t *args, int j) {
     auto addr = reinterpret_cast<uint64_t>(self.data);
     printf("address: %llu, mod: %llu\n", addr, addr % 16);
     std::get<arg_index>(args[j]) = 0;
@@ -83,7 +80,7 @@ struct unroll {
     int thread_idx = threadIdx.x;
     #pragma unroll
     for (int i = 0; i < thread_work_size; i++) {
-      detail::static_unroll<detail::unroll_load_helper, arity>::with_args(*this, args, i, num_outputs);
+      detail::static_unroll<detail::unroll_load_helper, arity>::with_args(*this, args, i);
       thread_idx += num_threads;
     }
   }
