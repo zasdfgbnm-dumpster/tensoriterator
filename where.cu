@@ -32,9 +32,6 @@ struct unroll_load_helper {
 
 __global__ void unrolled_elementwise_kernel(A *result)
 {
-  int idx = blockIdx.x;
-
-  A results[4];
   std::tuple<bool, A, A> args[4];
 
   // load
@@ -43,6 +40,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
     static_unroll<unroll_load_helper>::with_args(args, i);
   }
 
+  int idx = blockIdx.x;
   if (idx >= 0) {
     return;
   }
