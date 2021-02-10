@@ -5,24 +5,21 @@ struct alignas(16) A {
   double data[2];
 };
 
-template<template<int i> typename func>
-struct static_unroll {
-  template<typename... Args>
-  static inline __host__ __device__ void with_args(Args&&... args) {
-    func<0>::apply(std::forward<Args>(args)...);
-    func<1>::apply(std::forward<Args>(args)...);
-  }
-};
-
-// helper structs to be used with static_unroll to load arguments
-// one by one
-
 template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t>
   static __device__ void apply(args_t *args, int j) {
     printf("%d%d\n", 0, 0);
     std::get<arg_index>(args[j]) = {};
+  }
+};
+
+template<template<int i> typename func>
+struct static_unroll {
+  template<typename... Args>
+  static inline __host__ __device__ void with_args(Args&&... args) {
+    func<0>::apply(std::forward<Args>(args)...);
+    func<1>::apply(std::forward<Args>(args)...);
   }
 };
 
