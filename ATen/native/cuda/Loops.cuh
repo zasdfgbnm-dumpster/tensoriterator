@@ -26,11 +26,3 @@ constexpr int block_work_size = BLOCK_WORK_SIZE;
 #else
 #include <ATen/native/cuda/ROCmLoops.cuh>
 #endif
-
-namespace at { namespace native {
-
-void gpu_kernel(TensorIteratorBase& iter) {
-  launch_unrolled_kernel();
-}
-
-}} //namespace at::native

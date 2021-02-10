@@ -55,37 +55,6 @@
 
 namespace at { namespace native {
 
-C10_LAUNCH_BOUNDS_1(num_threads)
-__global__ void unrolled_elementwise_kernel(c10::complex<double> *result, c10::complex<double> *data)
-{
-  auto policy = memory::policies::unroll<c10::complex<double> *>(data);
-  
-  using return_t = c10::complex<double>;
-  using args_t = std::tuple<bool, c10::complex<double>, c10::complex<double>>;
 
-  int idx = blockIdx.x;
-
-  return_t results[thread_work_size];
-  args_t args[thread_work_size];
-
-  // load
-  policy.load(args, idx);
-
-  if (idx >= 0) {
-    return;
-  }
-
-  #pragma unroll
-  for (int i = 0; i < thread_work_size; i++) {
-    results[i] = std::get<1>(args[i]);
-    *result = results[i];
-  }
-}
-
-static inline void launch_unrolled_kernel()
-{
-  TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
-  int64_t grid = 1;
-}
 
 }} // namespace at::native
