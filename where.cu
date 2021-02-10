@@ -61,7 +61,10 @@ __global__ void unrolled_elementwise_kernel(A *result, A *data)
   args_t args[4];
 
   // load
-  policy.load(args, idx);
+  #pragma unroll
+  for (int i = 0; i < thread_work_size; i++) {
+    static_unroll<unroll_load_helper>::with_args(args, i);
+  }
 
   if (idx >= 0) {
     return;
