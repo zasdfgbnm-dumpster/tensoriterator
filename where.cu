@@ -1,4 +1,10 @@
-#include <ATen/native/cuda/Loops.cuh>
+constexpr int num_threads = 64;
+constexpr int thread_work_size = 4;
+constexpr int block_work_size = num_threads * thread_work_size;
+
+#include <c10/util/complex.h>
+#include <ATen/native/cuda/MemoryAccess.cuh>
+// #include <ATen/native/cuda/Loops.cuh>
 
 using namespace at;
 using namespace at::native;
