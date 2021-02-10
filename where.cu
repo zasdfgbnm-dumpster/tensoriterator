@@ -30,7 +30,7 @@ struct unroll_load_helper {
   }
 };
 
-__global__ void unrolled_elementwise_kernel(A *result, A *data)
+__global__ void unrolled_elementwise_kernel(A *result)
 {
   int idx = blockIdx.x;
 
@@ -55,7 +55,7 @@ __global__ void unrolled_elementwise_kernel(A *result, A *data)
 }
 
 int main() {
-  unrolled_elementwise_kernel<<<1, 1>>>(nullptr, nullptr);
+  unrolled_elementwise_kernel<<<1, 1>>>(nullptr);
   cudaDeviceSynchronize();
   auto code = cudaGetLastError();
   if(code != cudaSuccess) {
