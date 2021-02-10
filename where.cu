@@ -14,12 +14,11 @@ struct unroll_load_helper {
   }
 };
 
-template<template<int i> typename func>
 struct static_unroll {
   template<typename... Args>
   static inline __host__ __device__ void with_args(Args&&... args) {
-    func<0>::apply(std::forward<Args>(args)...);
-    func<1>::apply(std::forward<Args>(args)...);
+    unroll_load_helper<0>::apply(std::forward<Args>(args)...);
+    unroll_load_helper<1>::apply(std::forward<Args>(args)...);
   }
 };
 
@@ -28,7 +27,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
   std::tuple<bool, A> args[2];
   #pragma unroll
   for (int i = 0; i < 2; i++) {
-    static_unroll<unroll_load_helper>::with_args(args, i);
+    static_unroll::with_args(args, i);
   }
 
   if ((int)blockIdx.x >= 0) {
