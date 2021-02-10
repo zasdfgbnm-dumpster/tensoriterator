@@ -22,7 +22,7 @@ struct initialize_all {
   }
 };
 
-__global__ void unrolled_elementwise_kernel(A *result)
+__global__ void kernel(A *result)
 {
   std::tuple<bool, A> args[2];
 
@@ -39,7 +39,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
 }
 
 int main() {
-  unrolled_elementwise_kernel<<<1, 1>>>(nullptr);
+  kernel<<<1, 1>>>(nullptr);
   cudaDeviceSynchronize();
   auto code = cudaGetLastError();
   if(code != cudaSuccess) {
