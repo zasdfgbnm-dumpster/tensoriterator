@@ -10,7 +10,6 @@ struct alignas(16) A {
   double data[2];
 };
 
-__launch_bounds__(1)
 __global__ void unrolled_elementwise_kernel(A *result, A *data)
 {
   auto policy = memory::policies::unroll<A *>(data);
