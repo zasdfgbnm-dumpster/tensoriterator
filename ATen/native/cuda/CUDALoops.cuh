@@ -86,8 +86,6 @@ static inline void launch_unrolled_kernel()
 {
   TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
   int64_t grid = 1;
-  unrolled_elementwise_kernel<<<grid, num_threads, 0>>>(nullptr, nullptr);
-  C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
 }} // namespace at::native
