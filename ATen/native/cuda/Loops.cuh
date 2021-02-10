@@ -38,7 +38,7 @@ void gpu_kernel(TensorIteratorBase& iter) {
   }
 
   int64_t numel = iter.numel();
-  launch_unrolled_kernel(numel, data);
+  launch_unrolled_kernel(numel, nullptr);
 }
 
 }} //namespace at::native

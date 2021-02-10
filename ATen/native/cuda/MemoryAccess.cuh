@@ -58,7 +58,7 @@ struct unroll_load_helper {
     using arg_t = std::tuple_element_t<arg_index, args_t>;
     // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
     // need a +1 offset to get the input
-    auto addr = reinterpret_cast<uint64_t>(self.data[arg_index + num_outputs]);
+    auto addr = reinterpret_cast<uint64_t>(self.data);
     printf("address: %llu, mod: %llu\n", addr, addr % 16);
     std::get<arg_index>(args[j]) = 0;
   }
@@ -72,16 +72,11 @@ namespace policies {
 // all tensors are contiguous, that is: stride == sizeof(type) for all tensors
 template<typename data_t, int num_outputs = 1>
 struct unroll {
-
   data_t data;
   int remaining;
 
   __device__ unroll(data_t data, int remaining):
     data(data), remaining(remaining) {}
-
-  __device__ inline bool check_inbounds(int thread_work_elem) {
-    return ((threadIdx.x  + thread_work_elem*num_threads) < remaining);
-  }
 
   template<typename args_t>
   __device__ inline void load(args_t *args, int idx) {
