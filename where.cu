@@ -40,8 +40,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
     static_unroll<unroll_load_helper>::with_args(args, i);
   }
 
-  int idx = blockIdx.x;
-  if (idx >= 0) {
+  if ((int)blockIdx.x >= 0) {
     return;
   }
 
