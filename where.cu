@@ -30,28 +30,8 @@ struct unroll_load_helper {
   }
 };
 
-// Assumption:
-// all tensors are contiguous, that is: stride == sizeof(type) for all tensors
-template<typename data_t>
-struct unroll {
-  data_t data;
-
-  __device__ unroll(data_t data):
-    data(data) {}
-
-  template<typename args_t>
-  __device__ inline void load(args_t *args, int idx) {
-    #pragma unroll
-    for (int i = 0; i < thread_work_size; i++) {
-      static_unroll<unroll_load_helper>::with_args(args, i);
-    }
-  }
-};
-
 __global__ void unrolled_elementwise_kernel(A *result, A *data)
 {
-  auto policy = unroll<A *>(data);
-  
   using return_t = A;
   using args_t = std::tuple<bool, A, A>;
 
