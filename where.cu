@@ -47,11 +47,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
     return;
   }
 
-  #pragma unroll
-  for (int i = 0; i < 4; i++) {
-    results[i] = std::get<1>(args[i]);
-    *result = results[i];
-  }
+  *result = std::get<1>(args[0]);
 }
 
 int main() {
