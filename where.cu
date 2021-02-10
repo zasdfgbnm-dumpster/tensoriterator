@@ -40,7 +40,7 @@ __global__ void unrolled_elementwise_kernel(A *result)
   if ((int)blockIdx.x >= 0) {
     return;
   }
-
+  // code below will not be executed
   *result = std::get<1>(args[0]);
 }
 
