@@ -21,8 +21,7 @@ template<int arg_index>
 struct unroll_load_helper {
   template <typename args_t>
   static __device__ void apply(args_t *args, int j) {
-    uint64_t addr = 0;
-    printf("address: %llu, mod: %llu\n", addr, addr % 16);
+    printf("address: %llu, mod: %llu\n", 0, 0 % 16);
     std::get<arg_index>(args[j]) = {};
   }
 };
@@ -30,8 +29,6 @@ struct unroll_load_helper {
 __global__ void unrolled_elementwise_kernel(A *result)
 {
   std::tuple<bool, A> args[2];
-
-  // load
   #pragma unroll
   for (int i = 0; i < 2; i++) {
     static_unroll<unroll_load_helper>::with_args(args, i);
