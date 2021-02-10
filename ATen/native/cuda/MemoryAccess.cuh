@@ -58,7 +58,9 @@ struct unroll_load_helper {
     using arg_t = std::tuple_element_t<arg_index, args_t>;
     // `data` hold the data_ptr for tensors [output, input0, input1, ...], so we
     // need a +1 offset to get the input
-    std::get<arg_index>(args[j]) = loader.template load<arg_t>(self.data[arg_index + num_outputs], offset[arg_index], arg_index);
+    auto addr = reinterpret_cast<uint64_t>(self.data[arg_index + num_outputs]);
+    printf("address: %llu, mod: %llu\n", addr, addr % 16);
+    std::get<arg_index>(args[j]) = 0;
   }
 };
 
