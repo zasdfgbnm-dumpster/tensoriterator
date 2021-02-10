@@ -10,7 +10,7 @@ struct alignas(16) A {
   double data[2];
 };
 
-__launch_bounds__(num_threads)
+__launch_bounds__(1)
 __global__ void unrolled_elementwise_kernel(A *result, A *data)
 {
   auto policy = memory::policies::unroll<A *>(data);
@@ -20,8 +20,8 @@ __global__ void unrolled_elementwise_kernel(A *result, A *data)
 
   int idx = blockIdx.x;
 
-  return_t results[thread_work_size];
-  args_t args[thread_work_size];
+  return_t results[4];
+  args_t args[4];
 
   // load
   policy.load(args, idx);
@@ -31,14 +31,14 @@ __global__ void unrolled_elementwise_kernel(A *result, A *data)
   }
 
   #pragma unroll
-  for (int i = 0; i < thread_work_size; i++) {
+  for (int i = 0; i < 4; i++) {
     results[i] = std::get<1>(args[i]);
     *result = results[i];
   }
 }
 
 int main() {
-  unrolled_elementwise_kernel<<<1, num_threads, 0>>>(nullptr, nullptr);
+  unrolled_elementwise_kernel<<<1, 1>>>(nullptr, nullptr);
   cudaDeviceSynchronize();
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
