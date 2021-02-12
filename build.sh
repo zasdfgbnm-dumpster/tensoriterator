@@ -6,6 +6,6 @@ nvcc add.cu -o add -I. -std=c++14 \
     -gencode=arch=compute_86,code=sm_86 \
     -gencode=arch=compute_75,code=sm_75
 
-nsys profile ./add
+./add
 echo ""
 # rm -rf add

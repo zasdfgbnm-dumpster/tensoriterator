@@ -3,6 +3,7 @@
 
 #include <cuda_runtime.h>
 #include <cuda_profiler_api.h>
+#include <chrono>
 
 std::vector<int64_t> shape = {
   200, 300, 10000
@@ -39,13 +40,17 @@ int main() {
   int niter = 1000;
 
   cudaProfilerStart();
-  std::cout << iter.numel() << std::endl;
 
+  auto t1 = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < niter; i++) {
     gpu_kernel(iter, [] GPU_LAMBDA (float a, float b) {
       return a + b;
     });
   }
+  cudaDeviceSynchronize();
+  auto t2 = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  std::cout << duration << std::endl;
 
   cudaProfilerStop();
 
