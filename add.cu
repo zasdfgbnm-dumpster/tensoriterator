@@ -32,8 +32,8 @@ int main() {
   data_ptrs[0] = (char *)zeros<float>(600000000);
   data_ptrs[1] = (char *)arange<int>(600000000);
   data_ptrs[2] = (char *)arange<float>(600000000);
-  print((int *)data_ptrs[1], 30);
-  print((float *)data_ptrs[2], 30);
+  // print((int *)data_ptrs[1], 30);
+  // print((float *)data_ptrs[2], 30);
   cudaDeviceSynchronize();
   TensorIteratorBase iter;  // uses the hardcoded globals above
 
@@ -54,5 +54,5 @@ int main() {
 
   cudaProfilerStop();
 
-  print((float *)data_ptrs[0], 30);
+  // print((float *)data_ptrs[0], 30);
 }
