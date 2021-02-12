@@ -33,5 +33,5 @@
 
 /add
 /add-subtract
-*.qdrep
+# *.qdrep
 *.sqlite
