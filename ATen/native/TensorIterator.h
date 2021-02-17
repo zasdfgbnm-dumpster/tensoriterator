@@ -5,6 +5,7 @@
 #include <functional>
 #include <numeric>
 #include <c10/core/ScalarType.h>
+#include <array>
 
 extern std::vector<int64_t> shape;
 extern std::vector<std::vector<int64_t>> strides;
