@@ -35,3 +35,5 @@
 /add-subtract
 *.qdrep
 *.sqlite
+
+/compare
