@@ -67,9 +67,6 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "variant": "cpp",
-        "numbers": "cpp",
-        "semaphore": "cpp",
-        "shared_mutex": "cpp"
+        "variant": "cpp"
     }
 }

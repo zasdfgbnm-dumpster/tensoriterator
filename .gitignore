@@ -37,5 +37,3 @@
 *.sqlite
 
 /compare
-
-/.vscode/*

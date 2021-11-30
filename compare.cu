@@ -8,13 +8,15 @@ std::vector<std::vector<int64_t>> strides = {
   // warning: strides are in bytes!
   {1},
   {0},
+  {0},
 };
 std::vector<at::ScalarType> dtypes = {
   at::ScalarType::Bool,
   at::ScalarType::Long,
+  at::ScalarType::Long,
 };
 std::vector<char *> data_ptrs = {
-  nullptr, nullptr,
+  nullptr, nullptr, nullptr,
 };
 bool is_contiguous = false;
 int64_t noutputs = 1;
@@ -43,15 +45,34 @@ struct CompareFunctor{
   }
 };
 
+void ge_kernel_cuda(TensorIteratorBase& iter) {
+  using scalar_t = int64_t;
+  gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(CompareOpType::GE));
+}
+
+void gt_kernel_cuda(TensorIteratorBase& iter) {
+  using scalar_t = int64_t;
+  gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(CompareOpType::GT));
+}
+
+void le_kernel_cuda(TensorIteratorBase& iter) {
+  using scalar_t = int64_t;
+  gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(CompareOpType::LE));
+}
+
+void lt_kernel_cuda(TensorIteratorBase& iter) {
+  using scalar_t = int64_t;
+  gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(CompareOpType::LT));
+}
 
 int main() {
   data_ptrs[0] = (char *)zeros<bool>(4);
   data_ptrs[1] = (char *)full<int64_t>(1, 2);
+  data_ptrs[2] = (char *)zeros<int64_t>(1);
   print((int64_t *)data_ptrs[1], 1);
+  print((int64_t *)data_ptrs[2], 1);
   cudaDeviceSynchronize();
-  auto f = CompareFunctor<int64_t>(CompareOpType::GE);
-  BUnaryFunctor<decltype(f)> bf(f, 0L);
   TensorIteratorBase iter;  // uses the hardcoded globals above
-  gpu_kernel(iter, bf);
+  ge_kernel_cuda(iter);
   print((bool *)data_ptrs[0], 4);
 }
