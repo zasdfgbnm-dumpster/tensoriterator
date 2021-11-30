@@ -6,9 +6,9 @@ std::vector<int64_t> shape = {
 };
 std::vector<std::vector<int64_t>> strides = {
   // warning: strides are in bytes!
-  {0},
-  {0},
   {1},
+  {0},
+  {0},
 };
 std::vector<at::ScalarType> dtypes = {
   at::ScalarType::Bool,
@@ -66,7 +66,7 @@ void lt_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 int main() {
-  data_ptrs[0] = (char *)zeros<float>(4);
+  data_ptrs[0] = (char *)zeros<bool>(4);
   data_ptrs[1] = (char *)full<int64_t>(1, 2);
   data_ptrs[2] = (char *)zeros<int64_t>(1);
   print((int64_t *)data_ptrs[1], 1);
