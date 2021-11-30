@@ -7,4 +7,4 @@ echo ""
 echo ""
 ./compare
 echo ""
-rm -rf add add-subtract compare
+# rm -rf add add-subtract compare
